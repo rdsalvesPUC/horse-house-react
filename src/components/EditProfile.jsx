@@ -1,0 +1,471 @@
+import InputEdit from "./InputEdit.jsx";
+import {useState, useEffect} from "react";
+import Aviso from "./Aviso.jsx";
+
+export default function EditProfile({userData, reloadUser}) {
+    const [cepValido, setCepValido] = useState(
+        {
+            cep: false,
+            estado: "",
+            cidade: "",
+            bairro: "",
+            logradouro: ""
+        }
+    );
+    const [aviso, setAviso] = useState(
+        {
+            ativo: false,
+            mensagem: "",
+            titulo: ""
+        });
+    const [formData, setFormData] = useState({
+        nome: "",
+        sobrenome: "",
+        cargo: "",
+        foto: "",
+        cpf: "",
+        telefone: "",
+        dataNascimento: "",
+        email: "",
+        cep: "",
+        estado: "",
+        cidade: "",
+        bairro: "",
+        logradouro: "",
+        numero: "",
+        complemento: ""
+    })
+    useEffect(() => {
+        if (userData) {
+            setFormData((prev) => ({...prev, ...userData}));
+        }
+    }, [userData]);
+
+    useEffect(() => {
+        if (formData.cep && formData.cep.length === 8) {
+            fetch(`https://viacep.com.br/ws/${formData.cep}/json/`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (!data.erro) {
+                        const estado = data.uf;
+                        const cidade = data.localidade;
+                        const bairro = data.bairro;
+                        const logradouro = data.logradouro;
+                        setCepValido(
+                            {
+                                cep: true,
+                                estado: estado,
+                                cidade: cidade,
+                                bairro: bairro,
+                                logradouro: logradouro
+                            }
+                        );
+                        setFormData((prevState) => ({
+                            ...prevState,
+                            logradouro: data.logradouro,
+                            bairro: data.bairro,
+                            cidade: data.localidade,
+                            estado: data.estado
+                        }));
+                    } else {
+                        setCepValido(
+                            {
+                                cep: false,
+                                estado: "",
+                                cidade: "",
+                                bairro: "",
+                                logradouro: ""
+                            }
+                        );
+                        console.error("CEP inválido");
+                    }
+                })
+                .catch((error) => {
+                    setCepValido(
+                        {
+                            cep: false,
+                            estado: "",
+                            cidade: "",
+                            bairro: "",
+                            logradouro: ""
+                        }
+                    );
+                    console.error("Erro ao buscar o CEP:", error);
+                })
+        } else {
+            setCepValido(
+                {
+                    cep: false,
+                    estado: "",
+                    cidade: "",
+                    bairro: "",
+                    logradouro: ""
+                }
+            );
+        }
+    }, [formData.cep]);
+
+    function formatarData(data) {
+        if (!data) return "";
+        const d = new Date(data);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function changeFoto(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result.split(',')[1]; // Remove o "data:image/..;base64,"
+                let url = "";
+                const data = {
+                    foto: base64String
+                };
+                if (userData.cargo === "Proprietário") {
+                    url = `http://localhost:3000/api/proprietario/editar`;
+                } else if (userData.cargo === "Gerente") {
+                    url = `http://localhost:3000/api/editarGerente`;
+                }
+
+                const TOKEN = localStorage.getItem('token');
+
+                fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${TOKEN}`,
+                    },
+                    body: JSON.stringify(data)
+                }).then((response) => {
+                    if (response.ok) {
+                        reloadUser();
+                        return response.json();
+                    }
+                }).then(
+                    () => {
+                        setAviso({ativo: true, titulo: "Sucesso!", mensagem: "Foto atualizada com sucesso!"});
+                    }
+                ).catch(
+                    (error) => {
+                        console.error("Erro:", error);
+                    }
+                )
+
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        let data = {
+            nome: formData.nome,
+            sobrenome: formData.sobrenome,
+            telefone: formData.telefone,
+            dataNascimento: formatarData(formData.dataNascimento),
+            email: formData.email,
+        }
+        let url = "";
+        if (userData.cargo === "Proprietário") {
+            url = `http://localhost:3000/api/proprietario/editar`;
+
+            data = {
+                ...data,
+                cep: formData.cep,
+                estado: formData.estado,
+                cidade: formData.cidade,
+                bairro: formData.bairro,
+                rua: formData.logradouro,
+                numero: formData.numero,
+                complemento: formData.complemento
+            }
+            if (!cepValido.cep) {
+                return;
+            }
+            if (formData.logradouro.length < 3) {
+                return;
+            }
+            if (formData.bairro.length < 3) {
+                return;
+            }
+            if (formData.estado.length < 2) {
+                return;
+            }
+            if (formData.cidade.length < 3) {
+                return;
+            }
+            if (formData.numero.length < 1) {
+                return;
+            }
+        }
+        if (formData.nome.length < 3) {
+            return;
+        }
+        if (formData.sobrenome.length < 3) {
+            return;
+        }
+        if (formData.telefone.length < 10) {
+            return;
+        }
+        if (formData.dataNascimento.length < 10) {
+            return;
+        }
+        if (!verificarEmail(formData.email)) {
+            return;
+        }
+        if (userData.cargo === "Gerente") {
+            url = `http://localhost:3000/api/editarGerente`;
+        }
+        const TOKEN = localStorage.getItem('token');
+        fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify(data)
+        }).then((response) => {
+            if (response.ok) {
+                reloadUser();
+                return response.json();
+            } else {
+                throw new Error("Erro ao atualizar usuário");
+            }
+        }).then(() => {
+            setAviso({ativo: true, titulo: "Sucesso!", mensagem: "Dados atualizados com sucesso!"});
+
+        }).catch(() => {
+            setAviso({ativo: true, titulo: "Erro!", mensagem: "Erro ao atualizar os dados!"});
+        })
+
+        console.log("Dados do formulário:", data);
+    }
+
+    function formatarTelefone(telefone) {
+        telefone = telefone.replace(/\D/g, ""); // Remove não números
+        if (telefone.length >= 11) {
+            telefone = telefone.slice(0, 11); // Limita a 11 dígitos
+            return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); // Formata o telefone
+        } else if (telefone.length === 10) {
+            return telefone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3"); // Formata o telefone)
+        }
+        return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+
+    }
+
+    function formatarCEP(cep) {
+        return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2"); // Formata o CEP
+    }
+
+    function formatarCPF(cpf) {
+        cpf = cpf.replace(/\D/g, ""); // Remove não números
+        if (cpf.length > 11) {
+            cpf = cpf.slice(0, 11); // Limita a 11 dígitos
+        }
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2"); // Adiciona o primeiro ponto
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2"); // Adiciona o segundo ponto
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); // Adiciona o traço
+        return cpf;
+    }
+
+    function verificarEmail(email) {
+        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return re.test(email);
+    }
+
+    return (
+        <>
+            {aviso.ativo && <Aviso titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false})}/>}
+            <div className="container max-w-4xl mx-auto py-6 px-6 space-y-6">
+                {/* Título da página */}
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold tracking-tight">Perfil do Usuário</h1>
+                    <p className="text-muted-foreground mt-2">Gerencie suas informações pessoais e preferências de conta</p>
+                </div>
+
+                {/* Card: Foto do Perfil */}
+                <div className="bg-white rounded-lg shadow p-6">
+                    {/* Cabeçalho do card */}
+                    <div className="mb-4">
+                        <h2 className="text-xl font-semibold">Foto do Perfil</h2>
+                        <p className="text-muted-foreground mt-1 text-sm">Atualize sua foto de perfil. Recomendamos uma imagem de pelo menos 400×400 px.</p>
+                    </div>
+                    {/* Conteúdo do card */}
+                    <div className="flex flex-col items-center">
+                        <div className="relative mb-6">
+                            {/* Avatar / fallback */}
+                            <div className="w-32 h-32 rounded-full bg-secondary border-4 border-muted flex items-center justify-center text-4xl text-primary">
+                                <img src={userData.foto || "/assets/images/user.png"} id="avatar" alt="Avatar" className="h-full w-full rounded-full object-cover"/>
+                            </div>
+                            {/* Botão de upload */}
+                            <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-primary hover:bg-primary/90 text-white rounded-full p-2 cursor-pointer">
+                                {/* ícone de upload */}
+                                <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                                    {/* seu ícone aqui */}
+                                </svg>
+                                <span className="sr-only">Alterar foto</span>
+                            </label>
+                            <input onChange={changeFoto} id="avatar-upload" type="file" accept="image/*" className="hidden"/>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Card: Informações Pessoais */}
+                <div className="bg-white rounded-lg shadow p-6">
+                    {/* Cabeçalho do card */}
+                    <div className="mb-4">
+                        <h2 className="text-xl font-semibold">Informações Pessoais</h2>
+                        <p className="text-muted-foreground mt-1 text-sm">Atualize suas informações pessoais e de contato</p>
+                    </div>
+                    {/* Formulário */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* CPF (read-only) */}
+                        <div>
+                            <label htmlFor="cpf" className="block text-sm font-medium text-muted-foreground">CPF</label>
+                            <input id="cpf" type="text" value={formatarCPF(formData.cpf)} readOnly
+                                   className="mt-1 block w-full bg-muted border border-secondary/20 rounded-md px-3 py-2 text-gray-400"/>
+                            <p className="mt-1 text-xs text-muted-foreground">Seu CPF não pode ser alterado.</p>
+                        </div>
+
+                        {/* Nome e Sobrenome */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <InputEdit nome="Nome"
+                                       onchange={(value) => setFormData(
+                                           (prev) => ({...prev, nome: value})
+                                       )}
+                                       erro={formData.nome.length < 3}
+                                       textoErro="O Nome completo é obrigatório."
+                                       valor={formData.nome}
+                                       tipo="text"/>
+                            <InputEdit nome="Sobrenome"
+                                       onchange={(value) => setFormData(
+                                           (prev) => ({...prev, sobrenome: value})
+                                       )}
+                                       erro={formData.sobrenome.length < 3}
+                                       textoErro="O Sobrenome completo é obrigatório."
+                                       valor={formData.sobrenome}
+                                       tipo="text"/>
+                        </div>
+
+                        {/* Telefone e Data de Nascimento */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <InputEdit nome="Telefone"
+                                       onchange={(value) => setFormData(
+                                           (prev) => ({...prev, telefone: value.replace(/\D/g, "").slice(0, 11) || ""})
+                                       )}
+                                       erro={formData.telefone.length < 10}
+                                       textoErro="O Telefone é obrigatório."
+                                       valor={formatarTelefone(formData.telefone) || ""}
+                                       tipo="text"/>
+                            <InputEdit nome="Data de Nascimento"
+                                       onchange={(value) => setFormData(
+                                           (prev) => ({...prev, dataNascimento: value})
+                                       )}
+                                       erro={formData.dataNascimento.length < 10}
+                                       textoErro="Insira uma data de nascimento válida."
+                                       valor={formatarData(formData.dataNascimento)}
+                                       tipo="date"/>
+                        </div>
+
+                        {/* E-mail */}
+                        <InputEdit nome="E-mail"
+                                   onchange={(value) => setFormData(
+                                       (prev) => ({...prev, email: value})
+                                   )}
+                                   erro={!verificarEmail(formData.email)}
+                                   textoErro="O E-mail é obrigatório."
+                                   valor={formData.email}
+                                   tipo="text"/>
+
+                        {userData.cargo === "Proprietário" && (
+                            <>
+                                <InputEdit nome="CEP"
+                                           onchange={(value) => setFormData(
+                                               (prev) => ({...prev, cep: value.replace(/\D/g, "").slice(0, 8) || ""})
+                                           )}
+                                           erro={!cepValido.cep}
+                                           textoErro="O CEP é obrigatório."
+                                           valor={formatarCEP(formData.cep) || ""}
+                                           tipo="text"/>
+
+                                {/* Estado e Cidade */}
+                                <div id="container-estado" className="grid md:grid-cols-2 gap-4">
+                                    <InputEdit nome="Estado"
+                                               disabled={cepValido.cep && cepValido.estado}
+                                               onchange={(value) => setFormData(
+                                                   (prev) => ({...prev, estado: value})
+                                               )}
+                                               erro={formData.estado.length < 2}
+                                               textoErro="O Estado é obrigatório."
+                                               valor={formData.estado}
+                                               tipo="text"/>
+                                    {/* Cidade */}
+                                    <InputEdit nome="Cidade"
+                                               disabled={cepValido.cep && formData.cidade}
+                                               onchange={(value) => setFormData(
+                                                   (prev) => ({...prev, cidade: value})
+                                               )}
+                                               erro={formData.cidade.length < 3}
+                                               textoErro="A Cidade é obrigatória."
+                                               valor={formData.cidade}
+                                               tipo="text"/>
+                                </div>
+
+                                {/* Bairro */}
+                                <InputEdit nome="Bairro"
+                                           disabled={cepValido.cep && cepValido.bairro}
+                                           onchange={(value) => setFormData(
+                                               (prev) => ({...prev, bairro: value})
+                                           )}
+                                           erro={formData.bairro.length < 3}
+                                           textoErro="O Bairro é obrigatório."
+                                           valor={formData.bairro}
+                                           tipo="text"/>
+
+                                {/* Rua e Número */}
+                                <div id="container-rua" className="grid md:grid-cols-4 gap-4">
+                                    <InputEdit nome="Rua"
+                                               disabled={cepValido.cep && cepValido.logradouro}
+                                               onchange={(value) => setFormData(
+                                                   (prev) => ({...prev, logradouro: value})
+                                               )}
+                                               erro={formData.logradouro.length < 3}
+                                               textoErro="A Rua é obrigatória."
+                                               valor={formData.logradouro}
+                                               tipo="text"/>
+
+                                    <InputEdit nome="Número"
+                                               onchange={(value) => setFormData(
+                                                   (prev) => ({...prev, numero: value})
+                                               )}
+                                               erro={formData.numero.length < 1}
+                                               textoErro="O Número é obrigatório."
+                                               valor={formData.numero}
+                                               tipo="text"/>
+
+                                    <InputEdit nome="Complemento"
+                                               onchange={(value) => setFormData(
+                                                   (prev) => ({...prev, complemento: value})
+                                               )}
+                                               valor={formData.complemento}
+                                               tipo="text"/>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Botões de ação */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-between mt-8">
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <button type="button" className="border border-secondary text-secondary px-4 py-2 hover:bg-secondary/10 transition-colors">Alterar Senha</button>
+                            </div>
+                            <button type="submit" className="ml-auto bg-primary text-white px-4 py-2 hover:bg-primary/90 transition-colors">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </>
+    )
+}

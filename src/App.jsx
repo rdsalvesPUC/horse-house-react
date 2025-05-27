@@ -1,0 +1,22 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home.jsx';
+import CadastroProprietario from './pages/CadastroProprietario.jsx';
+import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
+import Haras from "./pages/Haras.jsx";
+
+export default function App() {
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/registro" element={<CadastroProprietario />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard/*" element={<Dashboard />} />
+                <Route path="/user-profile" element={<UserProfile />} />
+                <Route path="/haras" element={<Haras />} />
+            </Routes>
+        </Router>
+    );
+}
