@@ -7,8 +7,8 @@ import ListHaras from "../components/ListHaras.jsx";
 
 export default function Haras() {
     const navigate = useNavigate();
-    const [harasList, setHarasList] = useState("")
-    const [haras, setHaras] = useState()
+    const [harasList, setHarasList] = useState([])
+    const [haras, setHaras] = useState([])
     const [userData, setUserData] = useState(
         {
             nome: "",
@@ -138,7 +138,7 @@ export default function Haras() {
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
                 <Topbar harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
-                    <ListHaras />
+                    <ListHaras harasList = {harasList} />
                 </main>
             </div>
         </div>

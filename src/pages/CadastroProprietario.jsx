@@ -1,8 +1,8 @@
 import {Link, useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
-import BotaoForm from "../components/BotaoForm.jsx";
 import InputSenha from "../components/InputSenha.jsx";
 import Aviso from "../components/Aviso.jsx";
+import Input from "../components/Input.jsx";
 
 export default function CadastroProprietario() {
     const [aviso, setAviso] = useState(
@@ -247,13 +247,19 @@ export default function CadastroProprietario() {
 
     return (
         <div className="flex flex-col h-screen min-h-[768px]">
-            <header className="relative justify-between items-center bg-primary flex w-full gap-[40px_100px] flex-wrap p-8 max-md:max-w-full max-md:px-5">
+            <header
+                className="relative justify-between items-center bg-primary flex w-full gap-[40px_100px] flex-wrap p-8 max-md:max-w-full max-md:px-5">
                 <Link to="/">
-                    <img src="/assets/images/logo-h-whitebg.svg" alt="Logo" className="aspect-[4.59] object-contain w-[202px] self-stretch shrink-0 my-auto"/>
+                    <img src="/assets/images/logo-h-whitebg.svg" alt="Logo"
+                         className="aspect-[4.59] object-contain w-[202px] self-stretch shrink-0 my-auto"/>
                 </Link>
                 <div className="self-stretch flex items-center gap-4 my-auto">
-                    <div className="hidden xl:block text-tertiary text-[19px] font-semibold self-stretch my-auto font-lexend text-base">Não tem uma conta?</div>
-                    <Link to="/registro" className="self-stretch bg-secondary hover:bg-tertiary gap-2.5 text-tertiary hover:text-secondary font-heebo text-base font-bold my-auto px-5 py-2.5">SIGN
+                    <div
+                        className="hidden xl:block text-tertiary text-[19px] font-semibold self-stretch my-auto font-lexend text-base">Não
+                        tem uma conta?
+                    </div>
+                    <Link to="/registro"
+                          className="self-stretch bg-secondary hover:bg-tertiary gap-2.5 text-tertiary hover:text-secondary font-heebo text-base font-bold my-auto px-5 py-2.5">SIGN
                         UP</Link>
                 </div>
             </header>
@@ -265,9 +271,11 @@ export default function CadastroProprietario() {
                     aviso.onConfirm()
                 }}/>}
             <main className="relative flex flex-col items-center flex-1">
-                <img src="/assets/images/hero.jpg" alt="Background" className="absolute h-full w-full object-cover inset-0"/>
+                <img src="/assets/images/hero.jpg" alt="Background"
+                     className="absolute h-full w-full object-cover inset-0"/>
                 <div className="absolute inset-0 bg-[rgba(34,44,45,0.8)]"></div>
-                <div className="relative z-10 bg-tertiary rounded-xl shadow-lg overflow-hidden mt-[88px] mb-[88px] px-8 py-12 w-full min-w-[320px] max-w-[768px]">
+                <div
+                    className="relative z-10 bg-tertiary rounded-xl shadow-lg overflow-hidden mt-[88px] mb-[88px] px-8 py-12 w-full min-w-[320px] max-w-[768px]">
                     <div className="relative w-full">
                         <div className="absolute h-[2px] bg-gray-200 top-[20px] left-[12.5%] right-[12.5%]"></div>
 
@@ -276,7 +284,8 @@ export default function CadastroProprietario() {
                             <div className="flex-1 flex flex-col items-center" data-step-indicator="1">
                                 <div
                                     className={`w-10 h-10 rounded-full ${currentStep >= 1 ? "bg-secondary border-primary" : "bg-tertiary border-secondary"} text-primary border flex items-center justify-center`}>{currentStep >= 2 ? "✓" : 1}</div>
-                                <span className="text-xs mt-2 text-secondary whitespace-nowrap">Informações Pessoais</span>
+                                <span
+                                    className="text-xs mt-2 text-secondary whitespace-nowrap">Informações Pessoais</span>
                             </div>
 
                             <div className="flex-1 flex flex-col items-center" data-step-indicator="2">
@@ -306,28 +315,37 @@ export default function CadastroProprietario() {
                         {currentStep === 1 && (
                             <section className="space-y-6">
                                 {/* Campos da Etapa 1 */}
-                                <BotaoForm nome={"CPF"}
-                                           tipo={"text"}
-                                           erro={!verificarCPF(formData.cpf)}
-                                           textoErro={"Insira um CPF válido."}
-                                           placeHolder={"Digite seu CPF"}
-                                           onchange={(value) => setFormData({...formData, cpf: value.replace(/\D/g, "").slice(0, 11)})}
-                                           valor={formatarCPF(formData.cpf)}/>
+                                <Input nome={"CPF"}
+                                       tipo={"text"}
+                                       erro={!verificarCPF(formData.cpf)}
+                                       textoErro={"Insira um CPF válido."}
+                                       placeHolder={"Digite seu CPF"}
+                                       onchange={(value) => setFormData({
+                                           ...formData,
+                                           cpf: value.replace(/\D/g, "").slice(0, 11)
+                                       })}
+                                       valor={formatarCPF(formData.cpf)}
+                                       variant="form"
+                                />
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <BotaoForm nome={"Nome"}
-                                               tipo={"text"}
-                                               erro={formData.nome.length < 3}
-                                               textoErro={"O Nome é obrigatório."}
-                                               placeHolder={"Digite seu nome"}
-                                               onchange={(value) => setFormData({...formData, nome: value})}
-                                               valor={formData.nome}/>
-                                    <BotaoForm nome={"Sobrenome"}
-                                               tipo={"text"}
-                                               erro={formData.sobrenome.length < 3}
-                                               textoErro={"O Sobrenome é obrigatório."}
-                                               placeHolder={"Digite seu sobrenome"}
-                                               onchange={(value) => setFormData({...formData, sobrenome: value})}
-                                               valor={formData.sobrenome}/>
+                                    <Input nome={"Nome"}
+                                           tipo={"text"}
+                                           erro={formData.nome.length < 3}
+                                           textoErro={"O Nome é obrigatório."}
+                                           placeHolder={"Digite seu nome"}
+                                           onchange={(value) => setFormData({...formData, nome: value})}
+                                           valor={formData.nome}
+                                           variant="form"
+                                    />
+                                    <Input nome={"Sobrenome"}
+                                           tipo={"text"}
+                                           erro={formData.sobrenome.length < 3}
+                                           textoErro={"O Sobrenome é obrigatório."}
+                                           placeHolder={"Digite seu sobrenome"}
+                                           onchange={(value) => setFormData({...formData, sobrenome: value})}
+                                           valor={formData.sobrenome}
+                                           variant="form"
+                                    />
                                 </div>
                                 <button type="button" className="btn-form-next" onClick={handleNext}>Próximo</button>
                             </section>
@@ -336,31 +354,46 @@ export default function CadastroProprietario() {
                             <section className="space-y-6">
                                 {/* Campos da Etapa 2 */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <BotaoForm nome={"Telefone"}
-                                               tipo={"text"}
-                                               erro={formData.telefone.length < 10}
-                                               textoErro={"O Telefone é obrigatório."}
-                                               placeHolder={"(00) 00000-0000"}
-                                               onchange={(value) => setFormData({...formData, telefone: value.replace(/\D/g, "").slice(0, 11)})}
-                                               valor={formatarTelefone(formData.telefone)}/>
-                                    <BotaoForm nome={"Data de Nascimento"}
-                                               tipo={"date"}
-                                               erro={!formData.dataNascimento}
-                                               textoErro={"A Data de Nascimento é obrigatória."}
-                                               placeHolder={"DD/MM/AAAA"}
-                                               onchange={(value) => setFormData({...formData, dataNascimento: value})}
-                                               valor={formData.dataNascimento}/>
+                                    <Input
+                                        nome={"Telefone"}
+                                        tipo={"text"}
+                                        erro={formData.telefone.length < 10}
+                                        textoErro={"O Telefone é obrigatório."}
+                                        placeHolder={"(00) 00000-0000"}
+                                        onchange={(value) => setFormData({
+                                            ...formData,
+                                            telefone: value.replace(/\D/g, "").slice(0, 11)
+                                        })}
+                                        valor={formatarTelefone(formData.telefone)}
+                                        variant="form"
+                                    />
+                                    <Input
+                                        nome={"Data de Nascimento"}
+                                        tipo={"date"}
+                                        erro={!formData.dataNascimento}
+                                        textoErro={"A Data de Nascimento é obrigatória."}
+                                        placeHolder={"DD/MM/AAAA"}
+                                        onchange={(value) => setFormData({...formData, dataNascimento: value})}
+                                        valor={formData.dataNascimento}
+                                        variant="form"
+                                    />
                                 </div>
-                                <BotaoForm nome={"Email"}
-                                           tipo={"email"}
-                                           erro={!verificarEmail(formData.email)}
-                                           textoErro={"Insira um email válido."}
-                                           placeHolder={"Digite seu email"}
-                                           onchange={(value) => setFormData({...formData, email: value})}
-                                           valor={formData.email}/>
+                                <Input
+                                    nome={"Email"}
+                                    tipo={"email"}
+                                    erro={!verificarEmail(formData.email)}
+                                    textoErro={"Insira um email válido."}
+                                    placeHolder={"Digite seu email"}
+                                    onchange={(value) => setFormData({...formData, email: value})}
+                                    valor={formData.email}
+                                    variant="form"
+                                />
                                 <div className="flex gap-8">
-                                    <button type="button" className="btn-form-previous" onClick={handlePrevious}>Voltar</button>
-                                    <button type="button" className="btn-form-next" onClick={handleNext}>Próximo</button>
+                                    <button type="button" className="btn-form-previous"
+                                            onClick={handlePrevious}>Voltar
+                                    </button>
+                                    <button type="button" className="btn-form-next" onClick={handleNext}>Próximo
+                                    </button>
                                 </div>
                             </section>
                         )}
@@ -368,66 +401,93 @@ export default function CadastroProprietario() {
                             <section className="space-y-6">
                                 {/* Campos da Etapa 3 */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <BotaoForm nome={"CEP"}
-                                               tipo={"text"}
-                                               erro={!cepValido}
-                                               textoErro={"Insira um CEP válido."}
-                                               placeHolder={"Digite seu CEP"}
-                                               onchange={(value) => setFormData({...formData, cep: value.replace(/\D/g, "").slice(0, 8)})}
-                                               valor={formatarCEP(formData.cep)}/>
-                                    <BotaoForm nome={"Estado"}
-                                               tipo={"text"}
-                                               disabled={cepValido && formData.estado}
-                                               erro={!formData.estado}
-                                               textoErro={"O Estado é obrigatório."}
-                                               placeHolder={"Digite seu estado"}
-                                               onchange={(value) => setFormData({...formData, estado: value})}
-                                               valor={formData.estado}/>
+                                    <Input
+                                        nome={"CEP"}
+                                        tipo={"text"}
+                                        erro={!cepValido}
+                                        textoErro={"Insira um CEP válido."}
+                                        placeHolder={"Digite seu CEP"}
+                                        onchange={(value) => setFormData({
+                                            ...formData,
+                                            cep: value.replace(/\D/g, "").slice(0, 8)
+                                        })}
+                                        valor={formatarCEP(formData.cep)}
+                                        variant="form"
+                                    />
+                                    <Input
+                                        nome={"Estado"}
+                                        tipo={"text"}
+                                        disabled={cepValido && formData.estado}
+                                        erro={!formData.estado}
+                                        textoErro={"O Estado é obrigatório."}
+                                        placeHolder={"Digite seu estado"}
+                                        onchange={(value) => setFormData({...formData, estado: value})}
+                                        valor={formData.estado}
+                                        variant="form"
+                                    />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <BotaoForm nome={"Cidade"}
-                                               tipo={"text"}
-                                               disabled={cepValido && formData.cidade}
-                                               erro={!formData.cidade}
-                                               textoErro={"A Cidade é obrigatória."}
-                                               placeHolder={"Digite sua cidade"}
-                                               onchange={(value) => setFormData({...formData, cidade: value})}
-                                               valor={formData.cidade}/>
-                                    <BotaoForm nome={"Bairro"}
-                                               tipo={"text"}
-                                               disabled={cepValido && formData.bairro}
-                                               erro={!formData.bairro}
-                                               textoErro={"O Bairro é obrigatório."}
-                                               placeHolder={"Digite seu bairro"}
-                                               onchange={(value) => setFormData({...formData, bairro: value})}
-                                               valor={formData.bairro}/>
+                                    <Input
+                                        nome={"Cidade"}
+                                        tipo={"text"}
+                                        disabled={cepValido && formData.cidade}
+                                        erro={!formData.cidade}
+                                        textoErro={"A Cidade é obrigatória."}
+                                        placeHolder={"Digite sua cidade"}
+                                        onchange={(value) => setFormData({...formData, cidade: value})}
+                                        valor={formData.cidade}
+                                        variant="form"
+                                    />
+                                    <Input
+                                        nome={"Bairro"}
+                                        tipo={"text"}
+                                        disabled={cepValido && formData.bairro}
+                                        erro={!formData.bairro}
+                                        textoErro={"O Bairro é obrigatório."}
+                                        placeHolder={"Digite seu bairro"}
+                                        onchange={(value) => setFormData({...formData, bairro: value})}
+                                        valor={formData.bairro}
+                                        variant="form"
+                                    />
                                 </div>
-                                <BotaoForm nome={"Endereço"}
-                                           tipo={"text"}
-                                           disabled={cepValido && formData.endereco}
-                                           erro={!formData.endereco}
-                                           textoErro={"O Endereço é obrigatório."}
-                                           placeHolder={"Digite seu endereço"}
-                                           onchange={(value) => setFormData({...formData, endereco: value})}
-                                           valor={formData.endereco}/>
+                                <Input
+                                    nome={"Endereço"}
+                                    tipo={"text"}
+                                    disabled={cepValido && formData.endereco}
+                                    erro={!formData.endereco}
+                                    textoErro={"O Endereço é obrigatório."}
+                                    placeHolder={"Digite seu endereço"}
+                                    onchange={(value) => setFormData({...formData, endereco: value})}
+                                    valor={formData.endereco}
+                                    variant="form"
+                                />
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <BotaoForm nome={"Número"}
-                                               tipo={"text"}
-                                               erro={!formData.numero}
-                                               textoErro={"O Número é obrigatório."}
-                                               placeHolder={"Digite o número"}
-                                               onchange={(value) => setFormData({...formData, numero: value})}
-                                               valor={formData.numero}/>
-                                    <BotaoForm nome={"Complemento"}
-                                               tipo={"text"}
-                                               placeHolder={"Digite o complemento"}
-                                               onchange={(value) => setFormData({...formData, complemento: value})}
-                                               valor={formData.complemento}/>
+                                    <Input
+                                        nome={"Número"}
+                                        tipo={"text"}
+                                        erro={!formData.numero}
+                                        textoErro={"O Número é obrigatório."}
+                                        placeHolder={"Digite o número"}
+                                        onchange={(value) => setFormData({...formData, numero: value})}
+                                        valor={formData.numero}
+                                        variant="form"
+                                    />
+                                    <Input
+                                        nome={"Complemento"}
+                                        tipo={"text"}
+                                        placeHolder={"Digite o complemento"}
+                                        onchange={(value) => setFormData({...formData, complemento: value})}
+                                        valor={formData.complemento}
+                                        variant="form"
+                                    />
                                 </div>
 
                                 <div className="flex gap-8">
-                                    <button type="button" className="btn-form-previous" onClick={handlePrevious}>Voltar</button>
-                                    <button type="button" className="btn-form-next" onClick={handleNext}>Próximo</button>
+                                    <button type="button" className="btn-form-previous"
+                                            onClick={handlePrevious}>Voltar
+                                    </button>
+                                    <button type="button" className="btn-form-next" onClick={handleNext}>Próximo
+                                    </button>
                                 </div>
                             </section>
                         )}
@@ -443,10 +503,18 @@ export default function CadastroProprietario() {
                                     <div className="text-sm text-gray-600 mt-2">
                                         <div className="font-medium">Requisitos:</div>
                                         <ul className="list-disc list-inside">
-                                            <li className={formData.senha.match(/[A-Z]/) ? "text-success" : "text-error"}>Uma letra maiúscula</li>
-                                            <li className={formData.senha.match(/\d/) ? "text-success" : "text-error"}>Um número</li>
-                                            <li className={formData.senha.match(/[@$!%*?&#]/) ? "text-success" : "text-error"}>Um caractere especial</li>
-                                            <li className={formData.senha.length >= 8 ? "text-success" : "text-error"}>Mínimo de 8 caracteres</li>
+                                            <li className={formData.senha.match(/[A-Z]/) ? "text-success" : "text-error"}>Uma
+                                                letra maiúscula
+                                            </li>
+                                            <li className={formData.senha.match(/\d/) ? "text-success" : "text-error"}>Um
+                                                número
+                                            </li>
+                                            <li className={formData.senha.match(/[@$!%*?&#]/) ? "text-success" : "text-error"}>Um
+                                                caractere especial
+                                            </li>
+                                            <li className={formData.senha.length >= 8 ? "text-success" : "text-error"}>Mínimo
+                                                de 8 caracteres
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
@@ -460,7 +528,9 @@ export default function CadastroProprietario() {
                                     )}
                                 </div>
                                 <div className="flex gap-8">
-                                    <button type="button" className="btn-form-previous" onClick={handlePrevious}>Voltar</button>
+                                    <button type="button" className="btn-form-previous"
+                                            onClick={handlePrevious}>Voltar
+                                    </button>
                                     <button type="submit" className="btn-form-next">Concluir Cadastro</button>
                                 </div>
                             </section>

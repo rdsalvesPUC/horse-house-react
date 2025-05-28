@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 
-export default function Sidebar({userType}) {
+export default function Sidebar({userType, selected}) {
     return (
         <aside id="sidebar">
             {/* components/sidebar.html */}
@@ -15,7 +15,7 @@ export default function Sidebar({userType}) {
                 {/* Navegação */}
                 <div className="py-4 px-2 flex-1 overflow-auto">
                     <nav className="flex flex-col space-y-1">
-                        <Link to="/dashboard" data-view="visao-geral" className="flex items-center py-3 px-3 rounded-md bg-secondary/10 text-secondary transition-colors duration-200">
+                        <Link to="/dashboard" data-view="visao-geral" className="flex items-center py-3 px-3 rounded-md bg-secondary/10 text-secondary hover:bg-secondary/10 hover:text-secondary transition-colors duration-200">
                             <svg className="h-5 w-5 mr-3 fill-current text-secondary" viewBox="0 0 24 24">{/* … */}</svg>
                             <span className="text-tertiary">Dashboard</span>
                             <svg className="ml-auto h-4 w-4 fill-current text-secondary" viewBox="0 0 24 24">{/* ChevronRight */}</svg>
