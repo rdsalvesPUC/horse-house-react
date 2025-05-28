@@ -1,8 +1,15 @@
 import {Link} from "react-router-dom";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Input from "./Input.jsx";
+import Aviso from "./Aviso.jsx";
 
 export default function ListHaras({harasList}) {
+    const [aviso, setAviso] = useState(
+        {
+            ativo: false,
+            mensagem: "",
+            titulo: ""
+        });
     const [isEditing, setIsEditing] = useState("")
     const [formData, setFormData] = useState({
         Nome: "",
@@ -15,22 +22,16 @@ export default function ListHaras({harasList}) {
         Numero: "",
         Complemento: ""
     });
+    const [cepValido, setCepValido] = useState({
+        cep: false,
+        estado: "",
+        cidade: "",
+        bairro: "",
+        logradouro: ""
+    });
     const handleSubmit = (e) => {
         e.preventDefault();
         // Aqui você pode adicionar a lógica para enviar os dados do formulário
-        console.log("Dados do formulário:", formData);
-        // Resetar o formulário após o envio
-        setFormData({
-            Nome: "",
-            CNPJ: "",
-            Cep: "",
-            Estado: "",
-            Cidade: "",
-            Bairro: "",
-            Rua: "",
-            Numero: "",
-            Complemento: ""
-        });
         setIsEditing("");
     }
     const handleEdit = (id) => {
@@ -50,8 +51,86 @@ export default function ListHaras({harasList}) {
             setIsEditing(id);
         }
     }
+
+    function formatarCNPJ(cnpj) {
+        return cnpj.replace(/\D/g, "")
+            .replace(/^(\d{2})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d{1,2})$/, "$1/$2")
+            .replace(/(\d{2})$/, "-$1");
+    }
+
+    function formatarCEP(cep) {
+        return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2"); // Formata o CEP
+    }
+
+    useEffect(() => {
+        if (formData.Cep && formData.Cep.length === 8) {
+            fetch(`https://viacep.com.br/ws/${formData.Cep}/json/`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (!data.erro) {
+                        const estado = data.uf;
+                        const cidade = data.localidade;
+                        const bairro = data.bairro;
+                        const logradouro = data.logradouro;
+                        setCepValido(
+                            {
+                                cep: true,
+                                estado: estado,
+                                cidade: cidade,
+                                bairro: bairro,
+                                logradouro: logradouro
+                            }
+                        );
+                        setFormData((prevState) => ({
+                            ...prevState,
+                            Rua: data.logradouro,
+                            Bairro: data.bairro,
+                            Cidade: data.localidade,
+                            Estado: data.estado
+                        }));
+                    } else {
+                        setCepValido(
+                            {
+                                cep: false,
+                                estado: "",
+                                cidade: "",
+                                bairro: "",
+                                logradouro: ""
+                            }
+                        );
+                        console.error("CEP inválido");
+                    }
+                })
+                .catch((error) => {
+                    setCepValido(
+                        {
+                            cep: false,
+                            estado: "",
+                            cidade: "",
+                            bairro: "",
+                            logradouro: ""
+                        }
+                    );
+                    console.error("Erro ao buscar o CEP:", error);
+                })
+        } else {
+            setCepValido(
+                {
+                    cep: false,
+                    estado: "",
+                    cidade: "",
+                    bairro: "",
+                    logradouro: ""
+                }
+            );
+        }
+    }, [formData.Cep]);
+
     return (
         <div className="flex-grow p-6 space-y-6">
+            {aviso.ativo && (<Aviso titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
             <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
                 <div id="container-botao" className="flex items-center justify-between mb-6">
                     {/*<select id="select-haras" class="bg-tertiary w-55 p-3 rounded-md border border-secondary"></select>*/}
@@ -115,17 +194,17 @@ export default function ListHaras({harasList}) {
                         <Input
                             nome="CNPJ"
                             placeHolder="CNPJ"
-                            valor={formData.CNPJ}
+                            valor={formatarCNPJ(formData.CNPJ)}
                             tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, CNPJ: value}))}
+                            onchange={(value) => setFormData((prev) => ({...prev, CNPJ: value.replace(/\D/g, "").slice(0,14)}))}
                             variant="list"
                         />
                         <Input
                             nome="CEP"
                             placeHolder="CEP"
-                            valor={formData.Cep}
+                            valor={formatarCEP(formData.Cep)}
                             tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Cep: value}))}
+                            onchange={(value) => setFormData((prev) => ({...prev, Cep: value.replace(/\D/g, "").slice(0,8)}))}
                             variant="list"
                         />
                         <Input
@@ -135,7 +214,7 @@ export default function ListHaras({harasList}) {
                             tipo="text"
                             onchange={(value) => setFormData((prev) => ({...prev, Estado: value}))}
                             variant="list"
-                            readOnly
+                            disabled={cepValido.cep && cepValido.estado}
                         />
                         <Input
                             nome="Cidade"
@@ -144,7 +223,7 @@ export default function ListHaras({harasList}) {
                             tipo="text"
                             onchange={(value) => setFormData((prev) => ({...prev, Cidade: value}))}
                             variant="list"
-                            readOnly
+                            disabled={cepValido.cep && cepValido.cidade}
                         />
                         <Input
                             nome="Bairro"
@@ -153,6 +232,7 @@ export default function ListHaras({harasList}) {
                             tipo="text"
                             onchange={(value) => setFormData((prev) => ({...prev, Bairro: value}))}
                             variant="list"
+                            disabled={cepValido.cep && cepValido.bairro}
                         />
                         <Input
                             nome="Rua"
@@ -161,6 +241,7 @@ export default function ListHaras({harasList}) {
                             tipo="text"
                             onchange={(value) => setFormData((prev) => ({...prev, Rua: value}))}
                             variant="list"
+                            disabled={cepValido.cep && cepValido.logradouro}
                         />
                         <Input
                             nome="Número"
