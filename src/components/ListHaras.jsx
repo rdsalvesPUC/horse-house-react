@@ -31,9 +31,76 @@ export default function ListHaras({harasList}) {
     });
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Aqui você pode adicionar a lógica para enviar os dados do formulário
+        if (!formData.Nome || !formData.CNPJ || !formData.Cep || !formData.Estado || !formData.Cidade || !formData.Bairro || !formData.Rua || !formData.Numero) {
+            setAviso({
+                ativo: true,
+                mensagem: "Todos os campos são obrigatórios.",
+                titulo: "Erro"
+            });
+            return;
+        }
+        if (!cepValido.cep) {
+            setAviso({
+                ativo: true,
+                mensagem: "CEP inválido. Por favor, verifique o CEP informado.",
+                titulo: "Erro"
+            });
+            return;
+        }
+        if (!validarCNPJ(formData.CNPJ)) {
+            setAviso({
+                ativo: true,
+                mensagem: "CNPJ inválido. Por favor, verifique o CNPJ informado.",
+                titulo: "Erro"
+            });
+            return;
+        }
+        fetch(`http://localhost:3000/haras/${isEditing}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                Nome: formData.Nome,
+                CNPJ: formData.CNPJ,
+                Cep: formData.Cep,
+                Estado: formData.Estado,
+                Cidade: formData.Cidade,
+                Bairro: formData.Bairro,
+                Rua: formData.Rua,
+                Numero: formData.Numero,
+                Complemento: formData.Complemento
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                setAviso({
+                    ativo: true,
+                    mensagem: "Haras atualizado com sucesso.",
+                    titulo: "Sucesso"
+                });
+                setFormData({
+                    Nome: "",
+                    CNPJ: "",
+                    Cep: "",
+                    Estado: "",
+                    Cidade: "",
+                    Bairro: "",
+                    Rua: "",
+                    Numero: "",
+                    Complemento: ""
+                });
+            })
+            .catch(error => {
+                console.error("Erro ao atualizar o haras:", error);
+                setAviso({
+                    ativo: true,
+                    mensagem: "Erro ao atualizar o haras. Tente novamente mais tarde.",
+                    titulo: "Erro"
+                });
+            });
         setIsEditing("");
-    }
+    };
     const handleEdit = (id) => {
         const haras = harasList.find(h => h.ID === id);
         if (haras) {
@@ -62,6 +129,36 @@ export default function ListHaras({harasList}) {
 
     function formatarCEP(cep) {
         return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2"); // Formata o CEP
+    }
+    function validarCNPJ(cnpj) {
+        cnpj = cnpj.replace(/\D/g, "");
+        if (cnpj.length !== 14) return false;
+        if (/^(0{14}|1{14}|2{14}|3{14}|4{14}|5{14}|6{14}|7{14}|8{14}|9{14})$/.test(cnpj)) return false;
+        let soma = 0;
+        let peso = 2;
+        for (let i = cnpj.length - 2; i >= 0; i--) {
+            soma += parseInt(cnpj.charAt(i), 10) * peso;
+            peso = peso === 9 ? 2 : peso + 1;
+        }
+        let resto = soma % 11;
+        if (resto < 2) {
+            if (parseInt(cnpj.charAt(cnpj.length - 2), 10) !== 0) return false;
+        } else {
+            if (parseInt(cnpj.charAt(cnpj.length - 2), 10) !== 11 - resto) return false;
+        }
+        soma = 0;
+        peso = 2;
+        for (let i = cnpj.length - 1; i >= 0; i--) {
+            soma += parseInt(cnpj.charAt(i), 10) * peso;
+            peso = peso === 9 ? 2 : peso + 1;
+        }
+        resto = soma % 11;
+        if (resto < 2) {
+            if (parseInt(cnpj.charAt(cnpj.length - 1), 10) !== 0) return false;
+        } else {
+            if (parseInt(cnpj.charAt(cnpj.length - 1), 10) !== 11 - resto) return false;
+        }
+        return true;
     }
 
     useEffect(() => {
@@ -127,9 +224,7 @@ export default function ListHaras({harasList}) {
             );
         }
     }, [formData.Cep]);
-
-    return (
-        <div className="flex-grow p-6 space-y-6">
+    return (<div className="flex-grow p-6 space-y-6">
             {aviso.ativo && (<Aviso titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
             <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
                 <div id="container-botao" className="flex items-center justify-between mb-6">
@@ -267,6 +362,5 @@ export default function ListHaras({harasList}) {
                         </div>
                     </form>
                 </div>)}
-        </div>
-    )
+        </div>)
 }
