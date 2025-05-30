@@ -4,18 +4,24 @@ import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 export default function Dashboard() {
+    let userType = localStorage.getItem('userType');
+    if (userType === "proprietario") {
+        userType = "Proprietário";
+    }
+    const nome = localStorage.getItem('nome');
+    const sobrenome = localStorage.getItem('sobrenome');
+    const foto = localStorage.getItem('foto');
     const navigate = useNavigate();
     const [harasList, setHarasList] = useState("")
     const [haras, setHaras] = useState()
     const [userData, setUserData] = useState(
         {
-            nome: "",
-            sobrenome: "",
-            cargo: "",
-            foto: ""
+            nome: nome,
+            sobrenome: sobrenome,
+            cargo: userType,
+            foto: foto
         }
     )
-
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');
         fetch(`http://localhost:3000/api/loginExpirado`, {
@@ -55,6 +61,7 @@ export default function Dashboard() {
             }
         }).then(async (data) => {
                 let cargo;
+            const foto = data.Foto ? "http://localhost:3000" + data.Foto : null;
                 if (data.userType === "proprietario") {
                     cargo = "Proprietário"
                     await updateHaras();
@@ -72,7 +79,7 @@ export default function Dashboard() {
                     cargo = "Tratador"
                 }
                 setUserData({
-                    foto: data.Foto,
+                    foto: foto,
                     nome: data.Nome,
                     sobrenome: data.Sobrenome,
                     cargo: cargo

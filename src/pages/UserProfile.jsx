@@ -5,15 +5,22 @@ import {useNavigate} from "react-router-dom";
 import EditProfile from "../components/EditProfile.jsx";
 
 export default function UserProfile() {
+    let userType = localStorage.getItem('userType');
+    if (userType === "proprietario") {
+        userType = "Proprietário";
+    }
+    const nome = localStorage.getItem('nome');
+    const sobrenome = localStorage.getItem('sobrenome');
+    const foto = localStorage.getItem('foto');
     const navigate = useNavigate();
     const [harasList, setHarasList] = useState("")
     const [haras, setHaras] = useState()
     const [userData, setUserData] = useState(
         {
-            nome: "",
-            sobrenome: "",
-            cargo: "",
-            foto: "",
+            nome: nome,
+            sobrenome: sobrenome,
+            cargo: userType,
+            foto: foto,
             cpf: "",
             telefone: "",
             dataNascimento: "",
@@ -66,7 +73,8 @@ export default function UserProfile() {
                 throw new Error("Erro ao verificar token");
             }
         }).then(async (data) => {
-                let cargo;
+            const foto = data.Foto ? "http://localhost:3000" + data.Foto : null;
+            let cargo;
                 if (data.userType === "proprietario") {
                     cargo = "Proprietário"
                     await updateHaras();
@@ -84,7 +92,7 @@ export default function UserProfile() {
                     cargo = "Tratador"
                 }
                 setUserData({
-                    foto: data.Foto,
+                    foto: foto,
                     nome: data.Nome,
                     sobrenome: data.Sobrenome,
                     email: data.Email,

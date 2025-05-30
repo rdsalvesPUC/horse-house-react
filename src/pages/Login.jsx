@@ -72,7 +72,13 @@ export default function Login() {
                     }
                 })
                 .then((data) => {
+                    const foto = data.foto ? "http://localhost:3000" + data.foto : null;
                     localStorage.setItem("token", data.token);
+                    localStorage.setItem("userType", data.userType);
+                    localStorage.setItem("nome", data.nome);
+                    localStorage.setItem("sobrenome", data.sobrenome);
+                    localStorage.setItem("foto", foto || "");
+
                     setAviso(
                         {
                             ativo: true,

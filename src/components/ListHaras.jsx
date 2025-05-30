@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import Input from "./Input.jsx";
 import Aviso from "./Aviso.jsx";
 
-export default function ListHaras({harasList}) {
+export default function ListHaras({harasList, updateHaras, search}) {
     const [aviso, setAviso] = useState(
         {
             ativo: false,
@@ -29,6 +29,54 @@ export default function ListHaras({harasList}) {
         bairro: "",
         logradouro: ""
     });
+    const filteredHarasList = harasList.filter(haras => {
+        if (!search) return true; // Se não houver termo de busca, retorna todos os itens
+        const searchCNPJ = search.replace(/\D/g, ""); // Remove caracteres não numéricos
+        return (
+            haras.Nome.toLowerCase().includes(search.toLowerCase()) ||
+            (searchCNPJ && haras.CNPJ.includes(searchCNPJ)) ||
+            haras.Cidade.toLowerCase().includes(search.toLowerCase())
+        );
+    });
+    const handleDelete = (id) => {
+        function deletar(id) {
+            fetch(`http://localhost:3000/api/haras/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            }).then(res => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    throw new Error(`Erro ${res.status}: ${res.statusText}`);
+                }
+            }).then(data => {
+                    setAviso({
+                        ativo: true,
+                        mensagem: "Haras excluído com sucesso.",
+                        titulo: "Sucesso"
+                    });
+                    updateHaras();
+                }).catch(error => {
+                console.error("Erro ao excluir o haras:", error);
+                setAviso({
+                    ativo: true,
+                    mensagem: "Erro ao excluir o haras. Tente novamente mais tarde.",
+                    titulo: "Erro"
+                });
+            });
+        }
+        setAviso({
+            ativo: true,
+            mensagem: "Tem certeza que deseja excluir este haras?",
+            titulo: "Atenção",
+            onConfirm: () => {
+                deletar(id);
+            }
+        });
+    }
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.Nome || !formData.CNPJ || !formData.Cep || !formData.Estado || !formData.Cidade || !formData.Bairro || !formData.Rua || !formData.Numero) {
@@ -55,24 +103,31 @@ export default function ListHaras({harasList}) {
             });
             return;
         }
-        fetch(`http://localhost:3000/haras/${isEditing}`, {
+        fetch(`http://localhost:3000/api/haras/${isEditing}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
-                Nome: formData.Nome,
-                CNPJ: formData.CNPJ,
-                Cep: formData.Cep,
-                Estado: formData.Estado,
-                Cidade: formData.Cidade,
-                Bairro: formData.Bairro,
-                Rua: formData.Rua,
-                Numero: formData.Numero,
-                Complemento: formData.Complemento
+                nome: formData.Nome,
+                cnpj: formData.CNPJ,
+                cep: formData.Cep,
+                estado: formData.Estado,
+                rua: formData.Rua,
+                numero: formData.Numero,
+                complemento: formData.Complemento
             })
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 409) {
+                    throw new Error("CNPJ duplicado.");
+                }
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 setAviso({
                     ativo: true,
@@ -90,12 +145,13 @@ export default function ListHaras({harasList}) {
                     Numero: "",
                     Complemento: ""
                 });
+                updateHaras();
             })
             .catch(error => {
                 console.error("Erro ao atualizar o haras:", error);
                 setAviso({
                     ativo: true,
-                    mensagem: "Erro ao atualizar o haras. Tente novamente mais tarde.",
+                    mensagem: error.message === "CNPJ duplicado." ? "CNPJ já cadastrado. Por favor, utilize outro." : "Erro ao atualizar o haras. Tente novamente mais tarde.",
                     titulo: "Erro"
                 });
             });
@@ -120,45 +176,47 @@ export default function ListHaras({harasList}) {
     }
 
     function formatarCNPJ(cnpj) {
-        return cnpj.replace(/\D/g, "")
-            .replace(/^(\d{2})(\d)/, "$1.$2")
-            .replace(/(\d{3})(\d)/, "$1.$2")
-            .replace(/(\d{3})(\d{1,2})$/, "$1/$2")
-            .replace(/(\d{2})$/, "-$1");
+        return cnpj
+            .replace(/\D/g, "") // Remove caracteres não numéricos
+            .replace(/^(\d{2})(\d)/, "$1.$2") // Adiciona o primeiro ponto
+            .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3") // Adiciona o segundo ponto
+            .replace(/\.(\d{3})(\d)/, ".$1/$2") // Adiciona a barra
+            .replace(/(\d{4})(\d)/, "$1-$2"); // Adiciona o traço
     }
 
     function formatarCEP(cep) {
         return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2"); // Formata o CEP
     }
     function validarCNPJ(cnpj) {
-        cnpj = cnpj.replace(/\D/g, "");
-        if (cnpj.length !== 14) return false;
-        if (/^(0{14}|1{14}|2{14}|3{14}|4{14}|5{14}|6{14}|7{14}|8{14}|9{14})$/.test(cnpj)) return false;
+        cnpj = cnpj.replace(/\D/g, ""); // Remove caracteres não numéricos
+
+        if (cnpj.length !== 14) return false; // Verifica se o CNPJ tem 14 dígitos
+
+        // Verifica se todos os dígitos são iguais
+        if (/^(\d)\1+$/.test(cnpj)) return false;
+
+        // Calcula o primeiro dígito verificador
         let soma = 0;
-        let peso = 2;
-        for (let i = cnpj.length - 2; i >= 0; i--) {
-            soma += parseInt(cnpj.charAt(i), 10) * peso;
-            peso = peso === 9 ? 2 : peso + 1;
+        let peso = 5;
+        for (let i = 0; i < 12; i++) {
+            soma += parseInt(cnpj[i], 10) * peso;
+            peso = peso === 2 ? 9 : peso - 1;
         }
         let resto = soma % 11;
-        if (resto < 2) {
-            if (parseInt(cnpj.charAt(cnpj.length - 2), 10) !== 0) return false;
-        } else {
-            if (parseInt(cnpj.charAt(cnpj.length - 2), 10) !== 11 - resto) return false;
-        }
+        let digito1 = resto < 2 ? 0 : 11 - resto;
+
+        // Calcula o segundo dígito verificador
         soma = 0;
-        peso = 2;
-        for (let i = cnpj.length - 1; i >= 0; i--) {
-            soma += parseInt(cnpj.charAt(i), 10) * peso;
-            peso = peso === 9 ? 2 : peso + 1;
+        peso = 6;
+        for (let i = 0; i < 13; i++) {
+            soma += parseInt(cnpj[i], 10) * peso;
+            peso = peso === 2 ? 9 : peso - 1;
         }
         resto = soma % 11;
-        if (resto < 2) {
-            if (parseInt(cnpj.charAt(cnpj.length - 1), 10) !== 0) return false;
-        } else {
-            if (parseInt(cnpj.charAt(cnpj.length - 1), 10) !== 11 - resto) return false;
-        }
-        return true;
+        let digito2 = resto < 2 ? 0 : 11 - resto;
+
+        // Verifica se os dígitos calculados são iguais aos informados
+        return digito1 === parseInt(cnpj[12], 10) && digito2 === parseInt(cnpj[13], 10);
     }
 
     useEffect(() => {
@@ -166,6 +224,7 @@ export default function ListHaras({harasList}) {
             fetch(`https://viacep.com.br/ws/${formData.Cep}/json/`)
                 .then((response) => response.json())
                 .then((data) => {
+
                     if (!data.erro) {
                         const estado = data.uf;
                         const cidade = data.localidade;
@@ -225,7 +284,7 @@ export default function ListHaras({harasList}) {
         }
     }, [formData.Cep]);
     return (<div className="flex-grow p-6 space-y-6">
-            {aviso.ativo && (<Aviso titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
+            {aviso.ativo && (<Aviso onConfirm={aviso.onConfirm} titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
             <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
                 <div id="container-botao" className="flex items-center justify-between mb-6">
                     {/*<select id="select-haras" class="bg-tertiary w-55 p-3 rounded-md border border-secondary"></select>*/}
@@ -249,11 +308,11 @@ export default function ListHaras({harasList}) {
                     </tr>
                     </thead>
                     <tbody id="tbody-haras">
-                    {harasList.map((haras) => (
+                    {filteredHarasList.map((haras) => (
                         <tr key={haras.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
                             <td className="p-3">{haras.Nome}</td>
-                            <td className="p-3">{haras.CNPJ}</td>
-                            <td className="p-3">{haras.Cep}</td>
+                            <td className="p-3">{formatarCNPJ(haras.CNPJ)}</td>
+                            <td className="p-3">{formatarCEP(haras.Cep)}</td>
                             <td className="p-3">{haras.Estado}</td>
                             <td className="p-3">{haras.Cidade}</td>
                             <td className="p-3">{haras.Bairro}</td>
@@ -261,10 +320,11 @@ export default function ListHaras({harasList}) {
                             <td className="p-3">{haras.Numero}</td>
                             <td className="p-3">{haras.Complemento}</td>
                             <td className="p-3 text-center">
-                                <button onClick={() => handleEdit(haras.ID)}
-                                        className="bg-secondary text-tertiary px-4 py-2 rounded-md">Editar
+                                <button
+                                    onClick={() => handleEdit(haras.ID)}
+                                    className="bg-secondary text-tertiary px-4 py-2 rounded-md">Editar
                                 </button>
-                                <button className="bg-red-500 text-white px-4 py-2 rounded-md ml-2">Excluir
+                                <button onClick={() => handleDelete(haras.ID)} className="bg-red-500 text-white px-4 py-2 rounded-md ml-2">Excluir
                                 </button>
                             </td>
                         </tr>
@@ -356,7 +416,7 @@ export default function ListHaras({harasList}) {
                         />
 
                         <div className="flex justify-end gap-3">
-                            <button id="btn-cancelar" className="px-4 py-2 rounded-md bg-gray-300">Cancelar</button>
+                            <button onClick={() => setIsEditing("")} id="btn-cancelar" className="px-4 py-2 rounded-md bg-gray-300">Cancelar</button>
                             <button type="submit" id="btn-salvar" className="px-4 py-2 rounded-md bg-secondary text-tertiary">Salvar
                             </button>
                         </div>

@@ -117,45 +117,36 @@ export default function EditProfile({userData, reloadUser}) {
     function changeFoto(event) {
         const file = event.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result.split(',')[1]; // Remove o "data:image/..;base64,"
-                let url = "";
-                const data = {
-                    foto: base64String
-                };
-                if (userData.cargo === "Proprietário") {
-                    url = `http://localhost:3000/api/proprietario/editar`;
-                } else if (userData.cargo === "Gerente") {
-                    url = `http://localhost:3000/api/editarGerente`;
+            const formData = new FormData();
+            formData.append("foto", file);
+
+            let url = "";
+            if (userData.cargo === "Proprietário") {
+                url = `http://localhost:3000/api/proprietario/editar`;
+            } else if (userData.cargo === "Gerente") {
+                url = `http://localhost:3000/api/editarGerente`;
+            }
+
+            const TOKEN = localStorage.getItem('token');
+
+            fetch(url, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${TOKEN}`,
+                },
+                body: formData
+            }).then((response) => {
+                if (response.ok) {
+                    reloadUser();
+                    return response.json();
                 }
-
-                const TOKEN = localStorage.getItem('token');
-
-                fetch(url, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${TOKEN}`,
-                    },
-                    body: JSON.stringify(data)
-                }).then((response) => {
-                    if (response.ok) {
-                        reloadUser();
-                        return response.json();
-                    }
-                }).then(
-                    () => {
-                        setAviso({ativo: true, titulo: "Sucesso!", mensagem: "Foto atualizada com sucesso!"});
-                    }
-                ).catch(
-                    (error) => {
-                        console.error("Erro:", error);
-                    }
-                )
-
-            };
-            reader.readAsDataURL(file);
+                throw new Error("Erro ao atualizar foto");
+            }).then(() => {
+                setAviso({ativo: true, titulo: "Sucesso!", mensagem: "Foto atualizada com sucesso!"});
+            }).catch((error) => {
+                console.error("Erro:", error);
+                setAviso({ativo: true, titulo: "Erro!", mensagem: "Erro ao atualizar a foto!"});
+            });
         }
     }
 

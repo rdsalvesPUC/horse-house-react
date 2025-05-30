@@ -4,17 +4,26 @@ import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import EditProfile from "../components/EditProfile.jsx";
 import ListHaras from "../components/ListHaras.jsx";
+import * as sea from "node:sea";
 
 export default function Haras() {
+    let userType = localStorage.getItem('userType');
+    if (userType === "proprietario") {
+        userType = "Proprietário";
+    }
+    const nome = localStorage.getItem('nome');
+    const sobrenome = localStorage.getItem('sobrenome');
+    const foto = localStorage.getItem('foto');
     const navigate = useNavigate();
+    const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = useState([])
     const [userData, setUserData] = useState(
         {
-            nome: "",
-            sobrenome: "",
-            cargo: "",
-            foto: "",
+            nome: nome,
+            sobrenome: sobrenome,
+            cargo: userType,
+            foto: foto,
             cpf: "",
             telefone: "",
             dataNascimento: "",
@@ -28,7 +37,6 @@ export default function Haras() {
             complemento: ""
         }
     )
-
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');
         fetch(`http://localhost:3000/api/requerProprietario`, {
@@ -69,7 +77,8 @@ export default function Haras() {
                 throw new Error("Erro ao verificar token");
             }
         }).then(async (data) => {
-                let cargo;
+            const foto = data.Foto ? "http://localhost:3000" + data.Foto : null;
+            let cargo;
                 if (data.userType === "proprietario") {
                     cargo = "Proprietário"
                     await updateHaras();
@@ -87,7 +96,7 @@ export default function Haras() {
                     cargo = "Tratador"
                 }
                 setUserData({
-                    foto: data.Foto,
+                    foto: foto,
                     nome: data.Nome,
                     sobrenome: data.Sobrenome,
                     email: data.Email,
@@ -134,11 +143,11 @@ export default function Haras() {
     }
     return (
         <div className="flex h-screen">
-            <Sidebar userType={userData.cargo}/>
+            <Sidebar selected="haras" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)}/>
+                <Topbar disableSelect={true} search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
-                    <ListHaras harasList = {harasList} />
+                    <ListHaras search = {search} updateHaras = {updateHaras} harasList = {harasList} />
                 </main>
             </div>
         </div>
