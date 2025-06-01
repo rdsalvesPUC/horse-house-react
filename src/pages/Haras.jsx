@@ -17,7 +17,7 @@ export default function Haras() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
-    const [haras, setHaras] = useState([])
+    const [haras, setHaras] = useState("")
     const [userData, setUserData] = useState(
         {
             nome: nome,

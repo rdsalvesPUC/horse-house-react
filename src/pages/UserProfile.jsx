@@ -13,8 +13,6 @@ export default function UserProfile() {
     const sobrenome = localStorage.getItem('sobrenome');
     const foto = localStorage.getItem('foto');
     const navigate = useNavigate();
-    const [harasList, setHarasList] = useState("")
-    const [haras, setHaras] = useState()
     const [userData, setUserData] = useState(
         {
             nome: nome,
@@ -77,7 +75,6 @@ export default function UserProfile() {
             let cargo;
                 if (data.userType === "proprietario") {
                     cargo = "Proprietário"
-                    await updateHaras();
                 }
                 if (data.userType === "gerente") {
                     cargo = "Gerente"
@@ -115,34 +112,11 @@ export default function UserProfile() {
         })
     }
 
-    async function updateHaras() {
-        const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/getAllHaras`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-            }
-        }).then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Erro ao verificar token");
-            }
-        }).then(async (data) => {
-                setHarasList(await data)
-            }
-        ).catch((error) => {
-            //navigate("/login")
-            console.error("Erro:", error);
-        })
-    }
-
     return (
         <div className="flex h-screen">
             <Sidebar userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar disableSelect={true} harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)}/>
+                <Topbar disableSearch={true} disableSelect={true} userData={userData}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <EditProfile reloadUser={updateUser} userData={userData}/>
                 </main>

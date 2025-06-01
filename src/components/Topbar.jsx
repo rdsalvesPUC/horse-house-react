@@ -29,7 +29,7 @@ export default function Topbar({harasList, choseHaras, userData, disableSelect, 
                         </div>
                     </div>}
                 {(disableSelect && !disableSearch) &&(
-                    <div></div>)}
+                    <div className="w-[200px] py-2 pl-3 pr-8"></div>)}
 
 
                 {/* Central: Campo de busca */}

@@ -2,6 +2,8 @@ import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Input from "./Input.jsx";
 import Aviso from "./Aviso.jsx";
+import EditModal from "./EditModal.jsx";
+import Tabela from "./Tabela.jsx";
 
 export default function ListHaras({harasList, updateHaras, search}) {
     const [aviso, setAviso] = useState(
@@ -283,31 +285,16 @@ export default function ListHaras({harasList, updateHaras, search}) {
             );
         }
     }, [formData.Cep]);
-    return (<div className="flex-grow p-6 space-y-6">
+    return (
+        <div className="flex-grow p-6 space-y-6">
             {aviso.ativo && (<Aviso onConfirm={aviso.onConfirm} titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
             <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
                 <div id="container-botao" className="flex items-center justify-between mb-6">
-                    {/*<select id="select-haras" class="bg-tertiary w-55 p-3 rounded-md border border-secondary"></select>*/}
                     <Link to="#"
                        className="bg-secondary font-heebo text-base font-bold text-tertiary px-5 py-2 rounded-md transition hover:bg-tertiary hover:text-secondary"> Adicionar
                         Novo Haras </Link>
                 </div>
-                <table className="w-full border-collapse text-sm">
-                    <thead className="bg-secondary text-tertiary">
-                    <tr>
-                        <th className="p-3 text-left">Nome</th>
-                        <th className="p-3 text-left">CNPJ</th>
-                        <th className="p-3 text-left">CEP</th>
-                        <th className="p-3 text-left">Estado</th>
-                        <th className="p-3 text-left">Cidade</th>
-                        <th className="p-3 text-left">Bairro</th>
-                        <th className="p-3 text-left">Rua</th>
-                        <th className="p-3 text-left">Número</th>
-                        <th className="p-3 text-left">Complemento</th>
-                        <th className="p-3 text-center">Ações</th>
-                    </tr>
-                    </thead>
-                    <tbody id="tbody-haras">
+                <Tabela campos={["Nome", "CNPJ", "CEP", "Estado", "Cidade", "Bairro", "Rua", "Número", "Complemento"]}>
                     {filteredHarasList.map((haras) => (
                         <tr key={haras.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
                             <td className="p-3">{haras.Nome}</td>
@@ -329,15 +316,17 @@ export default function ListHaras({harasList, updateHaras, search}) {
                             </td>
                         </tr>
                     ))}
-                    </tbody>
-                </table>
+                </Tabela>
             </div>
 
             {/*} modal edição*/}
             {isEditing && (
                 <div id="modal" className="fixed inset-0 bg-black/50 items-center justify-center">
-                    <form onSubmit={handleSubmit} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg max-w-md w-full space-y-4">
-                        <h2 className="text-xl font-semibold">Editar Haras</h2>
+                    <EditModal
+                        titulo="Editar Haras"
+                        onCancel={() => setIsEditing("")}
+                        onSubmit={handleSubmit}
+                    >
                         <Input
                             nome="Nome"
                             placeHolder="Nome do Haras"
@@ -414,13 +403,7 @@ export default function ListHaras({harasList, updateHaras, search}) {
                             onchange={(value) => setFormData((prev) => ({...prev, Complemento: value}))}
                             variant="list"
                         />
-
-                        <div className="flex justify-end gap-3">
-                            <button onClick={() => setIsEditing("")} id="btn-cancelar" className="px-4 py-2 rounded-md bg-gray-300">Cancelar</button>
-                            <button type="submit" id="btn-salvar" className="px-4 py-2 rounded-md bg-secondary text-tertiary">Salvar
-                            </button>
-                        </div>
-                    </form>
+                    </EditModal>
                 </div>)}
         </div>)
 }
