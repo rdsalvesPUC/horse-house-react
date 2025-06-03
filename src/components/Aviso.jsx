@@ -1,6 +1,6 @@
 export default function Aviso({mensagem, titulo = "Aviso", onClose , onConfirm}) {
     return(
-        <div className="fixed inset-0 bg-black/50 z-50">
+        <div className="fixed inset-0 h-screen bg-black/50 z-50">
             <div className="bg-tertiary rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4 animate-fade-in absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ">
                 <h2 className="text-xl font-semibold text-gray-800 modal-title">{titulo}</h2>
                 <p className="text-gray-600 modal-message">{mensagem}</p>

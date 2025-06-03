@@ -3,6 +3,16 @@ import {useEffect, useState} from "react";
 import InputSenha from "../components/InputSenha.jsx";
 import Aviso from "../components/Aviso.jsx";
 import Input from "../components/Input.jsx";
+import {
+    formatarCPF,
+    formatarTelefone,
+    formatarCEP,
+    validarEmail,
+    validarSenha,
+    validarCPF,
+    validarTelefone,
+    validarNome
+} from '../utils';
 
 export default function CadastroProprietario() {
     const [aviso, setAviso] = useState(
@@ -40,83 +50,14 @@ export default function CadastroProprietario() {
         {title: "Segurança da Conta", description: "Crie uma senha forte para proteger sua conta"}
     ]
 
-    function verificarSenha() {
-        const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-        return re.test(formData.senha) && formData.senha === formData.confirmarSenha;
-    }
-
-    function verificarEmail(email) {
-        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return re.test(email);
-    }
-
-    function formatarTelefone(telefone) {
-        telefone = telefone.replace(/\D/g, ""); // Remove não números
-        if (telefone.length >= 11) {
-            telefone = telefone.slice(0, 11); // Limita a 11 dígitos
-            return telefone = telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); // Formata o telefone
-        } else if (telefone.length === 10) {
-            return telefone = telefone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3"); // Formata o telefone)
-        }
-        return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-
-    }
-
-    function formatarCEP(cep) {
-        return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2"); // Formata o CEP
-    }
-
-    function formatarCPF(cpf) {
-        cpf = cpf.replace(/\D/g, ""); // Remove não números
-        if (cpf.length > 11) {
-            cpf = cpf.slice(0, 11); // Limita a 11 dígitos
-        }
-        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2"); // Adiciona o primeiro ponto
-        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2"); // Adiciona o segundo ponto
-        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); // Adiciona o traço
-        return cpf;
-    }
-
-    function verificarCPF(cpf) {
-        cpf = cpf.replace(/\D/g, ""); // Remove não números
-        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-            return; // Bloqueia CPFs com todos os números iguais (ex: 000.000.000-00)
-        }
-
-        let soma = 0,
-            resto;
-
-        // Valida primeiro dígito
-        for (let i = 1; i <= 9; i++) {
-            soma += parseInt(cpf[i - 1]) * (11 - i);
-        }
-        resto = (soma * 10) % 11;
-        if (resto === 10 || resto === 11) resto = 0;
-        if (resto !== parseInt(cpf[9])) {
-            return false;
-        }
-
-        // Valida segundo dígito
-        soma = 0;
-        for (let i = 1; i <= 10; i++) {
-            soma += parseInt(cpf[i - 1]) * (12 - i);
-        }
-        resto = (soma * 10) % 11;
-        if (resto === 10 || resto === 11) resto = 0;
-        if (resto !== parseInt(cpf[10])) {
-            return false;
-        }
-        return true;
-    }
-
     const handleNext = () => setCurrentStep((prev) => {
-        if (currentStep === 1 && (!verificarCPF(formData.cpf)) || formData.nome.length < 3 || formData.sobrenome.length < 3) {
+        if (currentStep === 1 && (!validarCPF(formData.cpf) || !validarNome(formData.nome) || !validarNome(formData.sobrenome))) {
             return prev;
         }
-        if (currentStep === 2 && (!verificarEmail(formData.email) || formData.telefone.length < 10 || !formData.dataNascimento)) {
+        if (currentStep === 2 && (!validarEmail(formData.email) || !validarTelefone(formData.telefone) || !formData.dataNascimento)) {
             return prev;
         }
-        if (currentStep === 3 && cepValido && (!formData.cep || !formData.endereco || !formData.numero || !formData.bairro || !formData.cidade || !formData.estado)) {
+        if (currentStep === 3 && (!cepValido || !formData.endereco || !formData.numero || !formData.bairro || !formData.cidade || !formData.estado)) {
             return prev;
         }
         return Math.min(prev + 1, 4)
@@ -128,7 +69,7 @@ export default function CadastroProprietario() {
 
     async function handleSubmit(event) {
         event.preventDefault();
-        if (!verificarSenha() || !verificarEmail(formData.email) || !verificarCPF(formData.cpf) || formData.telefone.length < 10 || formData.cep.length < 8 || !formData.endereco || !formData.numero || !formData.bairro || !formData.cidade || !formData.estado) {
+        if (!validarSenha(formData.senha, formData.confirmarSenha) || !validarEmail(formData.email) || !validarCPF(formData.cpf) || !validarTelefone(formData.telefone) || !cepValido || !formData.endereco || !formData.numero || !formData.bairro || !formData.cidade || !formData.estado) {
             return false;
         }
         try {
@@ -317,7 +258,7 @@ export default function CadastroProprietario() {
                                 {/* Campos da Etapa 1 */}
                                 <Input nome={"CPF"}
                                        tipo={"text"}
-                                       erro={!verificarCPF(formData.cpf)}
+                                       erro={!validarCPF(formData.cpf)}
                                        textoErro={"Insira um CPF válido."}
                                        placeHolder={"Digite seu CPF"}
                                        onchange={(value) => setFormData({
@@ -330,7 +271,7 @@ export default function CadastroProprietario() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input nome={"Nome"}
                                            tipo={"text"}
-                                           erro={formData.nome.length < 3}
+                                           erro={validarNome(formData.nome)}
                                            textoErro={"O Nome é obrigatório."}
                                            placeHolder={"Digite seu nome"}
                                            onchange={(value) => setFormData({...formData, nome: value})}
@@ -339,7 +280,7 @@ export default function CadastroProprietario() {
                                     />
                                     <Input nome={"Sobrenome"}
                                            tipo={"text"}
-                                           erro={formData.sobrenome.length < 3}
+                                           erro={validarNome(formData.sobrenome)}
                                            textoErro={"O Sobrenome é obrigatório."}
                                            placeHolder={"Digite seu sobrenome"}
                                            onchange={(value) => setFormData({...formData, sobrenome: value})}
@@ -357,7 +298,7 @@ export default function CadastroProprietario() {
                                     <Input
                                         nome={"Telefone"}
                                         tipo={"text"}
-                                        erro={formData.telefone.length < 10}
+                                        erro={!validarTelefone(formData.telefone)}
                                         textoErro={"O Telefone é obrigatório."}
                                         placeHolder={"(00) 00000-0000"}
                                         onchange={(value) => setFormData({
@@ -381,7 +322,7 @@ export default function CadastroProprietario() {
                                 <Input
                                     nome={"Email"}
                                     tipo={"email"}
-                                    erro={!verificarEmail(formData.email)}
+                                    erro={!validarEmail(formData.email)}
                                     textoErro={"Insira um email válido."}
                                     placeHolder={"Digite seu email"}
                                     onchange={(value) => setFormData({...formData, email: value})}

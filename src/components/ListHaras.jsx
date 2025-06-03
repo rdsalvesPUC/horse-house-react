@@ -4,6 +4,7 @@ import Input from "./Input.jsx";
 import Aviso from "./Aviso.jsx";
 import EditModal from "./EditModal.jsx";
 import Tabela from "./Tabela.jsx";
+import { formatarCNPJ, formatarCEP, validarCNPJ } from '../utils';
 
 export default function ListHaras({harasList, updateHaras, search}) {
     const [aviso, setAviso] = useState(
@@ -175,50 +176,6 @@ export default function ListHaras({harasList, updateHaras, search}) {
             });
             setIsEditing(id);
         }
-    }
-
-    function formatarCNPJ(cnpj) {
-        return cnpj
-            .replace(/\D/g, "") // Remove caracteres não numéricos
-            .replace(/^(\d{2})(\d)/, "$1.$2") // Adiciona o primeiro ponto
-            .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3") // Adiciona o segundo ponto
-            .replace(/\.(\d{3})(\d)/, ".$1/$2") // Adiciona a barra
-            .replace(/(\d{4})(\d)/, "$1-$2"); // Adiciona o traço
-    }
-
-    function formatarCEP(cep) {
-        return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2"); // Formata o CEP
-    }
-    function validarCNPJ(cnpj) {
-        cnpj = cnpj.replace(/\D/g, ""); // Remove caracteres não numéricos
-
-        if (cnpj.length !== 14) return false; // Verifica se o CNPJ tem 14 dígitos
-
-        // Verifica se todos os dígitos são iguais
-        if (/^(\d)\1+$/.test(cnpj)) return false;
-
-        // Calcula o primeiro dígito verificador
-        let soma = 0;
-        let peso = 5;
-        for (let i = 0; i < 12; i++) {
-            soma += parseInt(cnpj[i], 10) * peso;
-            peso = peso === 2 ? 9 : peso - 1;
-        }
-        let resto = soma % 11;
-        let digito1 = resto < 2 ? 0 : 11 - resto;
-
-        // Calcula o segundo dígito verificador
-        soma = 0;
-        peso = 6;
-        for (let i = 0; i < 13; i++) {
-            soma += parseInt(cnpj[i], 10) * peso;
-            peso = peso === 2 ? 9 : peso - 1;
-        }
-        resto = soma % 11;
-        let digito2 = resto < 2 ? 0 : 11 - resto;
-
-        // Verifica se os dígitos calculados são iguais aos informados
-        return digito1 === parseInt(cnpj[12], 10) && digito2 === parseInt(cnpj[13], 10);
     }
 
     useEffect(() => {

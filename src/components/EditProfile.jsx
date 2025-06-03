@@ -1,6 +1,7 @@
 import Input from "./Input.jsx";
 import {useState, useEffect} from "react";
 import Aviso from "./Aviso.jsx";
+import { formatarTelefone, formatarCEP, formatarCPF, validarEmail } from '../utils';
 
 export default function EditProfile({userData, reloadUser}) {
     const [cepValido, setCepValido] = useState(
@@ -204,7 +205,7 @@ export default function EditProfile({userData, reloadUser}) {
         if (formData.dataNascimento.length < 10) {
             return;
         }
-        if (!verificarEmail(formData.email)) {
+        if (!validarEmail(formData.email)) {
             return;
         }
         if (userData.cargo === "Gerente") {
@@ -233,38 +234,6 @@ export default function EditProfile({userData, reloadUser}) {
         })
 
         console.log("Dados do formulário:", data);
-    }
-
-    function formatarTelefone(telefone) {
-        telefone = telefone.replace(/\D/g, ""); // Remove não números
-        if (telefone.length >= 11) {
-            telefone = telefone.slice(0, 11); // Limita a 11 dígitos
-            return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); // Formata o telefone
-        } else if (telefone.length === 10) {
-            return telefone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3"); // Formata o telefone)
-        }
-        return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-
-    }
-
-    function formatarCEP(cep) {
-        return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2"); // Formata o CEP
-    }
-
-    function formatarCPF(cpf) {
-        cpf = cpf.replace(/\D/g, ""); // Remove não números
-        if (cpf.length > 11) {
-            cpf = cpf.slice(0, 11); // Limita a 11 dígitos
-        }
-        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2"); // Adiciona o primeiro ponto
-        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2"); // Adiciona o segundo ponto
-        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); // Adiciona o traço
-        return cpf;
-    }
-
-    function verificarEmail(email) {
-        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return re.test(email);
     }
 
     return (
@@ -382,7 +351,7 @@ export default function EditProfile({userData, reloadUser}) {
                                onchange={(value) => setFormData(
                                    (prev) => ({...prev, email: value})
                                )}
-                               erro={!verificarEmail(formData.email)}
+                               erro={!validarEmail(formData.email)}
                                textoErro="O E-mail é obrigatório."
                                valor={formData.email}
                                tipo="text"

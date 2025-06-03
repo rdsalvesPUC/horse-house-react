@@ -4,6 +4,15 @@ import Input from "./Input.jsx";
 import Aviso from "./Aviso.jsx";
 import EditModal from "./EditModal.jsx";
 import Tabela from "./Tabela.jsx";
+import {
+    formatarCPF,
+    formatarTelefone,
+    formatarData,
+    validarNome,
+    validarEmail,
+    validarCPF,
+    validarTelefone
+} from '../utils';
 
 export default function ListUsuarios({haras, search}) {
     const [aviso, setAviso] = useState(
@@ -14,6 +23,7 @@ export default function ListUsuarios({haras, search}) {
         });
     const [isEditing, setIsEditing] = useState("")
     const [userList, setUserList] = useState([]);
+    const [tipo, setTipo] = useState("")
     const [formData, setFormData] = useState({
         nome: "",
         sobrenome: "",
@@ -70,15 +80,29 @@ export default function ListUsuarios({haras, search}) {
         });
     }
     useEffect(() => {
-        if (haras) {
+        if (haras && tipo) {
             updateUsers();
         } else {
             setUserList([])
         }
-    }, [haras]);
+    }, [haras, tipo]);
 
     function updateUsers() {
-        fetch(`http://localhost:3000/api/gerentes/haras/${haras}`, {
+        let url;
+        if (tipo === "gerente") {
+            url = `http://localhost:3000/api/gerentes/haras/${haras}`;
+        } else if (tipo === "veterinario") {
+            url = `http://localhost:3000/api/veterinarios/haras/${haras}`;
+        } else if (tipo === "treinador") {
+            url = `http://localhost:3000/api/treinadores/haras/${haras}`;
+        } else if (tipo === "tratador") {
+            url = `http://localhost:3000/api/tratadores/haras/${haras}`;
+        } else {
+            setUserList([]);
+            return;
+        }
+
+        fetch(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -114,26 +138,65 @@ export default function ListUsuarios({haras, search}) {
             });
             return;
         }
-
-        fetch(`http://localhost:3000/api/haras/${isEditing}`, {
+        if (!validarEmail(formData.email)) {
+            setAviso({
+                ativo: true,
+                mensagem: "Email inválido.",
+                titulo: "Erro"
+            });
+            return;
+        }
+        if (!validarCPF(formData.cpf)) {
+            setAviso({
+                ativo: true,
+                mensagem: "CPF inválido.",
+                titulo: "Erro"
+            });
+            return;
+        }
+        if (!validarTelefone(formData.telefone)) {
+            setAviso({
+                ativo: true,
+                mensagem: "Telefone inválido.",
+                titulo: "Erro"
+            });
+            return;
+        }
+        let url;
+        if (tipo === "gerente") {
+            url = `http://localhost:3000/api/gerente/${isEditing}`;
+        } else if (tipo === "veterinario") {
+            url = `http://localhost:3000/api/veterinario/${isEditing}`;
+        } else if (tipo === "treinador") {
+            url = `http://localhost:3000/api/treinador/${isEditing}`;
+        } else if (tipo === "tratador") {
+            url = `http://localhost:3000/api/tratador/${isEditing}`;
+        } else {
+            setAviso({
+                ativo: true,
+                mensagem: "Tipo de usuário inválido.",
+                titulo: "Erro"
+            });
+            return;
+        }
+        fetch(url, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
-                nome: formData.Nome,
-                cnpj: formData.CNPJ,
-                cep: formData.Cep,
-                estado: formData.Estado,
-                rua: formData.Rua,
-                numero: formData.Numero,
-                complemento: formData.Complemento
+                nome: formData.nome,
+                sobrenome: formData.sobrenome,
+                email: formData.email,
+                telefone: formData.telefone,
+                cpf: formData.cpf,
+                dataNascimento: formData.data_nascimento
             })
         })
             .then(response => {
                 if (response.status === 409) {
-                    throw new Error("CNPJ duplicado.");
+                    throw new Error("CPF ou Email duplicado.");
                 }
                 if (!response.ok) {
                     throw new Error(`Erro ${response.status}: ${response.statusText}`);
@@ -163,7 +226,7 @@ export default function ListUsuarios({haras, search}) {
                 console.error("Erro ao atualizar o Usuário:", error);
                 setAviso({
                     ativo: true,
-                    mensagem: error.message === "CNPJ duplicado." ? "CNPJ já cadastrado. Por favor, utilize outro." : "Erro ao atualizar o Usuário. Tente novamente mais tarde.",
+                    mensagem: error.message === "CPF ou Email duplicado." ? "CPF ou Email já cadastrado. Por favor, utilize outro." : "Erro ao atualizar o Usuário. Tente novamente mais tarde.",
                     titulo: "Erro"
                 });
             });
@@ -191,46 +254,37 @@ export default function ListUsuarios({haras, search}) {
         }
     }
 
-    function formatarCPF(cpf) {
-        return cpf.replace(/\D/g, "").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    }
-
-    function formatarTelefone(telefone) {
-        if (telefone.length === 11) {
-            return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-        }
-        if (telefone.length === 10) {
-            return telefone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
-        }
-        return telefone.replace(/\D/g, "")
-            .replace(/^(\d{2})(\d)/, "($1) $2")
-            .replace(/(\d{5})(\d)/, "$1-$2")
-    }
-
-    function formatarData(data) {
-        const date = new Date(data);
-        if (!isNaN(date)) {
-            const dia = String(date.getDate()).padStart(2, "0");
-            const mes = String(date.getMonth() + 1).padStart(2, "0");
-            const ano = String(date.getFullYear());
-            return `${dia}/${mes}/${ano}`;
-        }
-        return data;
-    }
-
     return (
         <div className="flex-grow p-6 space-y-6">
             {aviso.ativo && (<Aviso onConfirm={aviso.onConfirm} titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
             <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
-                <div id="container-botao" className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-left gap-4 mb-6">
                     <Link to="#"
                           className="bg-secondary font-heebo text-base font-bold text-tertiary px-5 py-2 rounded-md transition hover:bg-tertiary hover:text-secondary"> Adicionar
                         Novo Usuário </Link>
-                    <select>
-
-                    </select>
+                    <div className="relative">
+                        <select onChange={(event => setTipo(event.target.value))} className="w-[200px] py-2 pl-3 pr-8 border border-secondary/50 rounded-md text-gray-700 bg-white appearance-none focus:outline-none">
+                            <option value="">Tipo de Usuário</option>
+                            <option value="gerente">Gerente</option>
+                            <option value="veterinario">Veterinário</option>
+                            <option value="treinador">Treinador</option>
+                            <option value="tratador">Tratador</option>
+                        </select>
+                        {/* setinha à direita */}
+                        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                        {/* Aqui você coloca um ícone de chevron-down */}
+                            ▼
+                    </span>
+                    </div>
                 </div>
-                <Tabela campos={["Nome","Sobrenome","Email","Telefone","CPF","Nascimento"]}>
+                <Tabela campos={[
+                    "Nome",
+                    "Sobrenome",
+                    "Email",
+                    "Telefone",
+                    "CPF",
+                    ...(tipo === "veterinario" ? ["CRMV"] : []),
+                    "Nascimento",]}>
                     {filteredUserList.map((user) => {
                         console.log(user);
                         return <tr key={haras.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
@@ -239,6 +293,7 @@ export default function ListUsuarios({haras, search}) {
                             <td className="p-3">{user.email}</td>
                             <td className="p-3">{formatarTelefone(user.telefone)}</td>
                             <td className="p-3">{formatarCPF(user.cpf)}</td>
+                            {tipo === "veterinario" && <td className="p-3">{user.crmv}</td>}
                             <td className="p-3">{formatarData(user.data_nascimento)}</td>
 
 
