@@ -35,8 +35,8 @@ export default function Sidebar({userType, selected = "dashboard"}) {
                             <span>Usuários</span>
                         </Link>
 
-                        <Link to="/dashboard/cavalos" data-view="cavalos"
-                              className="flex items-center py-3 px-3 rounded-md text-tertiary hover:bg-secondary/10 hover:text-secondary transition-colors duration-200">
+                        <Link to="/cavalos" data-view="cavalos"
+                              className={`flex items-center py-3 px-3 rounded-md ${selected === "cavalos" ? "bg-secondary/10 text-secondary" : "text-tertiary"} hover:bg-secondary/10 hover:text-secondary transition-colors duration-200`}>
                             <svg className="h-5 w-5 mr-3 fill-current text-tertiary" viewBox="0 0 24 24">{/* Cavalos */}</svg>
                             <span>Cavalos</span>
                         </Link>

@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import Haras from "./pages/Haras.jsx";
 import Usuarios from "./pages/Usuarios.jsx";
+import Cavalos from "./pages/Cavalos.jsx";
 
 export default function App() {
     return (
@@ -18,6 +19,7 @@ export default function App() {
                 <Route path="/user-profile" element={<UserProfile />} />
                 <Route path="/haras" element={<Haras />} />
                 <Route path="/usuarios" element={<Usuarios />} />
+                <Route path="/cavalos" element={<Cavalos />} />
             </Routes>
         </Router>
     );

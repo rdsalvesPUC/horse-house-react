@@ -1,4 +1,5 @@
 export function validarCNPJ(cnpj) {
+    if (!cnpj == null) return false;
     cnpj = cnpj.replace(/\D/g, "");
     if (cnpj.length !== 14) return false;
     if (/^(\d)\1+$/.test(cnpj)) return false;
@@ -21,6 +22,7 @@ export function validarCNPJ(cnpj) {
 }
 
 export function formatarCNPJ(cnpj) {
+    if (cnpj == null) return "";
     return cnpj
         .replace(/\D/g, "")
         .replace(/^(\d{2})(\d)/, "$1.$2")
@@ -30,10 +32,12 @@ export function formatarCNPJ(cnpj) {
 }
 
 export function formatarCEP(cep) {
+    if (cep == null) return "";
     return cep.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2");
 }
 
 export function formatarCPF(cpf) {
+    if (cpf == null) return "";
     cpf = cpf.replace(/\D/g, "");
     if (cpf.length > 11) {
         cpf = cpf.slice(0, 11);
@@ -44,6 +48,7 @@ export function formatarCPF(cpf) {
 }
 
 export function formatarTelefone(telefone) {
+    if (telefone == null) return "";
     telefone = telefone.replace(/\D/g, "");
     if (telefone.length === 11) {
         return telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
@@ -58,11 +63,13 @@ export function formatarTelefone(telefone) {
 }
 
 export function validarTelefone(telefone) {
+    if (telefone == null) return false;
     telefone = telefone.replace(/\D/g, "");
     return telefone.length === 10 || telefone.length === 11;
 }
 
 export function formatarData(data) {
+    if (data == null) return "";
     const date = new Date(data);
     if (!isNaN(date)) {
         const dia = String(date.getDate()).padStart(2, "0");
@@ -74,16 +81,19 @@ export function formatarData(data) {
 }
 
 export function validarEmail(email) {
+    if (email == null) return false;
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(email);
 }
 
 export function validarSenha(senha, confirmarSenha) {
+    if (senha == null || confirmarSenha == null) return false;
     const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
     return re.test(senha) && senha === confirmarSenha;
 }
 
 export function validarCPF(cpf) {
+    if (cpf == null) return false;
     cpf = cpf.replace(/\D/g, "");
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
         return false;
@@ -107,6 +117,6 @@ export function validarCPF(cpf) {
 }
 
 export function validarNome(nome) {
+    if (nome == null) return false;
     return typeof nome === 'string' && nome.trim().length >= 3;
 }
-

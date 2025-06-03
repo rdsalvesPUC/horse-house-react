@@ -8,7 +8,6 @@ import {
     formatarCPF,
     formatarTelefone,
     formatarData,
-    validarNome,
     validarEmail,
     validarCPF,
     validarTelefone
