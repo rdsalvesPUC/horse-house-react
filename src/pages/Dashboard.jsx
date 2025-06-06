@@ -12,7 +12,7 @@ export default function Dashboard() {
     const sobrenome = localStorage.getItem('sobrenome');
     const foto = localStorage.getItem('foto');
     const navigate = useNavigate();
-    const [harasList, setHarasList] = useState("")
+    const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = useState()
     const [userData, setUserData] = useState(
         {
@@ -118,7 +118,7 @@ export default function Dashboard() {
         <div className="flex h-screen">
             <Sidebar userType = {userData.cargo} />
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)} />
+                <Topbar haras={haras} harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)} />
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
 
                 </main>

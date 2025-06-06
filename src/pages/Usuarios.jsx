@@ -145,7 +145,7 @@ export default function Usuarios() {
             <Sidebar selected="usuarios" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
                 <Topbar search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
-                        choseHaras={(harasID) => setHaras(harasID)}/>
+                        choseHaras={(harasID) => setHaras(harasID)} haras = {haras}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <ListUsuarios search={search} updateHaras={updateHaras} haras={haras}/>
                 </main>

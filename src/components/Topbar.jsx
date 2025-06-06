@@ -1,7 +1,8 @@
 import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
+import Select from "./Select.jsx";
 
-export default function Topbar({harasList, choseHaras, userData, disableSelect, disableSearch, search, onSearch}) {
+export default function Topbar({harasList, choseHaras, userData, disableSelect, disableSearch, search, onSearch, haras}) {
     const [dropdown, setDropdown] = useState(false)
     const navigate = useNavigate();
 
@@ -13,14 +14,13 @@ export default function Topbar({harasList, choseHaras, userData, disableSelect, 
                     <div className="flex items-center space-x-6">
                         {/* Dropdown estático de Haras */}
                         <div id="container-haras" className="relative">
-                            <select onChange={event => choseHaras(event.target.value)} id="select-haras"
-                                    className="w-[200px] py-2 pl-3 pr-8 border border-secondary/50 rounded-md text-gray-700 bg-white appearance-none focus:outline-none">
-                                <option value="">Selecionar Haras</option>
-                                {harasList && harasList.map((h) => (
-                                    <option key={h.ID} value={h.ID}>{h.Nome}</option>
-                                ))}
-
-                            </select>
+                            <Select nome="Haras"
+                                    onchange={valor => choseHaras(valor)}
+                                    variant="topbar"
+                                    options={harasList.map(h => ({value: h.ID, label: h.Nome}))}
+                                    valor={haras}
+                                    placeHolder="Selecione um Haras"
+                                    />
                             {/* setinha à direita */}
                             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                         {/* Aqui você coloca um ícone de chevron-down */}

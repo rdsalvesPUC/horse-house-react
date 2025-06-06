@@ -5,6 +5,7 @@ import Aviso from "./Aviso.jsx";
 import EditModal from "./EditModal.jsx";
 import Tabela from "./Tabela.jsx";
 import {formatarData} from '../utils';
+import Select from "./Select.jsx";
 
 export default function ListCavalos({haras, search}) {
     const [aviso, setAviso] = useState(
@@ -45,7 +46,8 @@ export default function ListCavalos({haras, search}) {
                 } else {
                     throw new Error(`Erro ${res.status}: ${res.statusText}`);
                 }
-            }).then(data => {
+            }).then(
+                data => {
                 setAviso({
                     ativo: true,
                     mensagem: "Cavalo excluído com sucesso.",
@@ -291,11 +293,14 @@ export default function ListCavalos({haras, search}) {
                             onchange={(value) => setFormData((prev) => ({...prev, sangue: value}))}
                             variant="list"
                         />
-                        <Input
+                        <Select
                             nome="Sexo"
                             placeHolder="Sexo do Cavalo"
                             valor={formData.sexo}
-                            tipo="text"
+                            options={[
+                                {value: "Macho", label: "Macho"},
+                                {value: "Fêmea", label: "Fêmea"}
+                            ]}
                             onchange={(value) => setFormData((prev) => ({...prev, sexo: value}))}
                             variant="list"
                         />

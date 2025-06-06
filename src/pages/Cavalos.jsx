@@ -123,7 +123,7 @@ export default function Cavalos() {
         <div className="flex h-screen">
             <Sidebar selected="cavalos" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
+                <Topbar haras={haras} search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
                         choseHaras={(harasID) => setHaras(harasID)}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <ListCavalos search={search} updateHaras={updateHaras} haras={haras} cargo ={userData.cargo}/>

@@ -168,6 +168,10 @@
         @apply font-heebo border border-secondary text-secondary px-5 py-2.5 font-bold hover:bg-secondary hover:text-tertiary transition-colors;
     }
 
+    .btn-tertiary {
+        @apply font-heebo border border-secondary hover:border-primary text-secondary px-5 py-2.5 font-bold bg-white hover:bg-primary hover:text-tertiary transition-colors;
+    }
+
     .btn-form-previous {
         @apply w-full px-5 py-3 border border-primary/40 bg-white hover:bg-primary/20 text-primary font-heebo text-base font-bold
     }
