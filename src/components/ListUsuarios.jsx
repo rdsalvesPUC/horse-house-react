@@ -35,7 +35,9 @@ export default function ListUsuarios({haras, search}) {
         if (!search) return true; // Se não houver termo de busca, retorna todos os itens
         const searchCPF = search.replace(/\D/g, ""); // Remove caracteres não numéricos
         return (
-            user.Nome.toLowerCase().includes(search.toLowerCase()) ||
+            user.nome.toLowerCase().includes(search.toLowerCase()) ||
+            user.sobrenome.toLowerCase().includes(search.toLowerCase()) ||
+            user.email.toLowerCase().includes(search.toLowerCase()) ||
             (searchCPF && user.Cpf.includes(searchCPF))
         );
     });
