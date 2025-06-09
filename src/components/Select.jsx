@@ -8,7 +8,7 @@ export default function Select({
                                    required,
                                    options = [],
                                    disabled = false,
-                                   variant = "profile"
+                                   variant = "list"
                                }) {
     const variants = {
         topbar: {

@@ -1,9 +1,8 @@
 import {Link} from "react-router-dom";
-import {useState} from "react";
-import {useOpenSidebar} from "../hooks/useOpenSidebar.jsx";
+import {ToggleSidebar} from "../contexts/ToggleSidebar.jsx";
 
 export default function Sidebar({userType, selected}) {
-    const [isOpen,setIsOpen] = useOpenSidebar()
+    const [isOpen, toggleSidebar] = ToggleSidebar()
     return (
         <aside className={`${isOpen ? "w-[250px]" : "w-[80px]"} transition-all duration-300`} id="sidebar">
             <div className="bg-primary h-screen flex flex-col relative">
@@ -11,7 +10,7 @@ export default function Sidebar({userType, selected}) {
                 <div className="h-16 py-4 px-6 flex items-center">
                     <Link to="">
                         {isOpen ? <img src="/assets/images/logo-h-whitebg.svg" alt="Horse House Logo"
-                                     className="object-contain md:w-[150px] lg:w-[180px]"/>
+                                       className="object-contain md:w-[150px] lg:w-[180px]"/>
                             : <img src="/assets/images/brasao-secondary.svg" alt="Horse House Brasão"
                                    className="object-contain h-[39.8px]"/>}
                     </Link>
@@ -116,19 +115,20 @@ export default function Sidebar({userType, selected}) {
                 </div>
 
                 {/* Botão de colapso/expansão */}
-                <button onClick={() => setIsOpen(prev => !prev)} id="toggleSidebar"
+                <button onClick={toggleSidebar} id="toggleSidebar"
                         className="absolute -right-3 top-13 bg-tertiary rounded-full p-1 border border-secondary shadow-md hover:bg-secondary transition-colors"
                         aria-label="Colapsar/Expandir sidebar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                         className="lucide lucide-chevron-left">
-                        <path d="m15 18-6-6 6-6"></path>
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                         className="lucide lucide-chevron-right hidden">
-                        <path d="m9 18 6-6-6-6"></path>
-                    </svg>
+                    {isOpen ?
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                             className="lucide lucide-chevron-left">
+                            <path d="m15 18-6-6 6-6"></path>
+                        </svg> :
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                             className="lucide lucide-chevron-right">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>}
                 </button>
             </div>
         </aside>

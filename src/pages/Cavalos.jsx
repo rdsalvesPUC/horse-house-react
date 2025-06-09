@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar.jsx";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import ListCavalos from "../components/ListCavalos.jsx";
+import {useUser} from "../contexts/UserData.jsx";
 
 export default function Cavalos() {
     let userType = localStorage.getItem('userType');
@@ -16,32 +17,11 @@ export default function Cavalos() {
     const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = useState("")
-    const [userData, setUserData] = useState(
-        {
-            nome: nome,
-            sobrenome: sobrenome,
-            cargo: userType,
-            foto: foto,
-            cpf: "",
-            telefone: "",
-            dataNascimento: "",
-            email: "",
-            cep: "",
-            estado: "",
-            cidade: "",
-            bairro: "",
-            logradouro: "",
-            numero: "",
-            complemento: ""
-        }
-    )
-    useEffect(() => {
-        updateUser();
-    }, []);
+    const [userData, updateUser] = useUser();
 
-    function updateUser() {
+    useEffect(() => {
         const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/getUsuarioLogado`, {
+        fetch(`http://localhost:3000/api/loginExpirado`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -53,48 +33,16 @@ export default function Cavalos() {
             } else {
                 throw new Error("Erro ao verificar token");
             }
-        }).then(async (data) => {
-                const foto = data.Foto ? "http://localhost:3000" + data.Foto : null;
-                let cargo;
-                if (data.userType === "proprietario") {
-                    cargo = "Proprietário"
-                    await updateHaras();
+        }).then((data) => {
+                if (userData.cargo === "Proprietário") {
+                    updateHaras();
                 }
-                if (data.userType === "gerente") {
-                    cargo = "Gerente"
-                }
-                if (data.userType === "treinador") {
-                    cargo = "Treinador"
-                }
-                if (data.userType === "veterinario") {
-                    cargo = "Veterinário"
-                }
-                if (data.userType === "tratador") {
-                    cargo = "Tratador"
-                }
-                setUserData({
-                    foto: foto,
-                    nome: data.Nome,
-                    sobrenome: data.Sobrenome,
-                    email: data.Email,
-                    telefone: data.Telefone,
-                    cpf: data.CPF,
-                    dataNascimento: data.Data_Nascimento,
-                    cep: data.CEP,
-                    estado: data.Estado,
-                    cidade: data.Cidade,
-                    bairro: data.Bairro,
-                    logradouro: data.Rua,
-                    numero: data.Numero,
-                    complemento: data.Complemento,
-                    cargo: cargo
-                })
             }
         ).catch((error) => {
             navigate("/login")
             console.error("Erro:", error);
         })
-    }
+    }, []);
 
     async function updateHaras() {
         const TOKEN = localStorage.getItem('token');
@@ -124,7 +72,7 @@ export default function Cavalos() {
             <Sidebar selected="cavalos" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
                 <Topbar haras={haras} search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
-                        choseHaras={(harasID) => setHaras(harasID)}/>
+                        choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <ListCavalos search={search} updateHaras={updateHaras} haras={haras} cargo ={userData.cargo}/>
                 </main>

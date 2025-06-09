@@ -1,6 +1,7 @@
 import {Link, useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Aviso from "../components/Aviso.jsx";
+import {useUser} from "../contexts/UserData.jsx";
 
 export default function Login() {
     const [login, setLogin] = useState({
@@ -13,6 +14,7 @@ export default function Login() {
             mensagem: "",
             titulo: ""
         });
+    const [user, updateUser] = useUser();
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
@@ -78,7 +80,7 @@ export default function Login() {
                     localStorage.setItem("nome", data.nome);
                     localStorage.setItem("sobrenome", data.sobrenome);
                     localStorage.setItem("foto", foto || "");
-
+                    updateUser()
                     setAviso(
                         {
                             ativo: true,

@@ -12,6 +12,7 @@ import {
     validarCPF,
     validarTelefone
 } from '../utils';
+import Select from "./Select.jsx";
 
 export default function ListUsuarios({haras, search}) {
     const [aviso, setAviso] = useState(
@@ -264,13 +265,19 @@ export default function ListUsuarios({haras, search}) {
                           className="bg-secondary font-heebo text-base font-bold text-tertiary px-5 py-2 rounded-md transition hover:bg-tertiary hover:text-secondary"> Adicionar
                         Novo Usuário </Link>
                     <div className="relative">
-                        <select onChange={(event => setTipo(event.target.value))} className="w-[200px] py-2 pl-3 pr-8 border border-secondary/50 rounded-md text-gray-700 bg-white appearance-none focus:outline-none">
-                            <option value="">Tipo de Usuário</option>
-                            <option value="gerente">Gerente</option>
-                            <option value="veterinario">Veterinário</option>
-                            <option value="treinador">Treinador</option>
-                            <option value="tratador">Tratador</option>
-                        </select>
+                        <Select
+                            onchange={(valor) => {setTipo(valor)}}
+                            options={[
+                                { value: "gerente", label: "Gerente" },
+                                { value: "veterinario", label: "Veterinário" },
+                                { value: "treinador", label: "Treinador" },
+                                { value: "tratador", label: "Tratador" }
+                            ]}
+                            placeHolder="Tipo de Usuário"
+                            valor={tipo}
+                            nome="tipo-usuario"
+                            variant="topbar"
+                        />
                         {/* setinha à direita */}
                         <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                         {/* Aqui você coloca um ícone de chevron-down */}
