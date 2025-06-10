@@ -1,10 +1,9 @@
-import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Input from "./Input.jsx";
-import Aviso from "./Aviso.jsx";
 import EditModal from "./EditModal.jsx";
 import Tabela from "./Tabela.jsx";
-import { formatarCNPJ, formatarCEP, validarCNPJ } from '../utils';
+import {formatarCNPJ, formatarCEP, validarCNPJ} from '../utils';
+import Lista from "./Lista.jsx";
 
 export default function ListHaras({harasList, updateHaras, search}) {
     const [aviso, setAviso] = useState(
@@ -56,13 +55,13 @@ export default function ListHaras({harasList, updateHaras, search}) {
                     throw new Error(`Erro ${res.status}: ${res.statusText}`);
                 }
             }).then(data => {
-                    setAviso({
-                        ativo: true,
-                        mensagem: "Haras excluído com sucesso.",
-                        titulo: "Sucesso"
-                    });
-                    updateHaras();
-                }).catch(error => {
+                setAviso({
+                    ativo: true,
+                    mensagem: "Haras excluído com sucesso.",
+                    titulo: "Sucesso"
+                });
+                updateHaras();
+            }).catch(error => {
                 console.error("Erro ao excluir o haras:", error);
                 setAviso({
                     ativo: true,
@@ -71,6 +70,7 @@ export default function ListHaras({harasList, updateHaras, search}) {
                 });
             });
         }
+
         setAviso({
             ativo: true,
             mensagem: "Tem certeza que deseja excluir este haras?",
@@ -243,124 +243,119 @@ export default function ListHaras({harasList, updateHaras, search}) {
         }
     }, [formData.Cep]);
     return (
-        <div className="flex-grow p-6 space-y-6">
-            {aviso.ativo && (<Aviso onConfirm={aviso.onConfirm} titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
-            <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
-                <div id="container-botao" className="flex items-center justify-between mb-6">
-                    <Link to="#"
-                       className="bg-secondary font-heebo text-base font-bold text-tertiary px-5 py-2 rounded-md transition hover:bg-tertiary hover:text-secondary"> Adicionar
-                        Novo Haras </Link>
-                </div>
-                <Tabela campos={["Nome", "CNPJ", "CEP", "Estado", "Cidade", "Bairro", "Rua", "Número", "Complemento"]}>
-                    {filteredHarasList.map((haras) => (
-                        <tr key={haras.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
-                            <td className="p-3">{haras.Nome}</td>
-                            <td className="p-3">{formatarCNPJ(haras.CNPJ)}</td>
-                            <td className="p-3">{formatarCEP(haras.Cep)}</td>
-                            <td className="p-3">{haras.Estado}</td>
-                            <td className="p-3">{haras.Cidade}</td>
-                            <td className="p-3">{haras.Bairro}</td>
-                            <td className="p-3">{haras.Rua}</td>
-                            <td className="p-3">{haras.Numero}</td>
-                            <td className="p-3">{haras.Complemento}</td>
-                            <td className="p-3 text-center">
-                                <button
-                                    onClick={() => handleEdit(haras.ID)}
-                                    className="bg-secondary text-tertiary px-4 py-2 rounded-md">Editar
-                                </button>
-                                <button onClick={() => handleDelete(haras.ID)} className="bg-red-500 text-white px-4 py-2 rounded-md ml-2">Excluir
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </Tabela>
-            </div>
-
-            {/*} modal edição*/}
-            {isEditing && (
-                <div id="modal" className="fixed inset-0 bg-black/50 items-center justify-center">
-                    <EditModal
-                        titulo="Editar Haras"
-                        onCancel={() => setIsEditing("")}
-                        onSubmit={handleSubmit}
-                    >
-                        <Input
-                            nome="Nome"
-                            placeHolder="Nome do Haras"
-                            valor={formData.Nome}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Nome: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="CNPJ"
-                            placeHolder="CNPJ"
-                            valor={formatarCNPJ(formData.CNPJ)}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, CNPJ: value.replace(/\D/g, "").slice(0,14)}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="CEP"
-                            placeHolder="CEP"
-                            valor={formatarCEP(formData.Cep)}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Cep: value.replace(/\D/g, "").slice(0,8)}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Estado"
-                            placeHolder="Estado"
-                            valor={formData.Estado}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Estado: value}))}
-                            variant="list"
-                            disabled={cepValido.cep && cepValido.estado}
-                        />
-                        <Input
-                            nome="Cidade"
-                            placeHolder="Cidade"
-                            valor={formData.Cidade}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Cidade: value}))}
-                            variant="list"
-                            disabled={cepValido.cep && cepValido.cidade}
-                        />
-                        <Input
-                            nome="Bairro"
-                            placeHolder="Bairro"
-                            valor={formData.Bairro}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Bairro: value}))}
-                            variant="list"
-                            disabled={cepValido.cep && cepValido.bairro}
-                        />
-                        <Input
-                            nome="Rua"
-                            placeHolder="Rua"
-                            valor={formData.Rua}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Rua: value}))}
-                            variant="list"
-                            disabled={cepValido.cep && cepValido.logradouro}
-                        />
-                        <Input
-                            nome="Número"
-                            placeHolder="Número"
-                            valor={formData.Numero}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Numero: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Complemento"
-                            placeHolder="Complemento"
-                            valor={formData.Complemento}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, Complemento: value}))}
-                            variant="list"
-                        />
-                    </EditModal>
-                </div>)}
-        </div>)
+        <Lista isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})} botaoNovo="Adicionar novo Haras"
+               tabela={
+                   <Tabela
+                       campos={["Nome", "CNPJ", "CEP", "Estado", "Cidade", "Bairro", "Rua", "Número", "Complemento"]}>
+                       {filteredHarasList.map((haras) => (
+                           <tr key={haras.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
+                               <td className="p-3">{haras.Nome}</td>
+                               <td className="p-3">{formatarCNPJ(haras.CNPJ)}</td>
+                               <td className="p-3">{formatarCEP(haras.Cep)}</td>
+                               <td className="p-3">{haras.Estado}</td>
+                               <td className="p-3">{haras.Cidade}</td>
+                               <td className="p-3">{haras.Bairro}</td>
+                               <td className="p-3">{haras.Rua}</td>
+                               <td className="p-3">{haras.Numero}</td>
+                               <td className="p-3">{haras.Complemento}</td>
+                               <td className="p-3 text-center space-x-2">
+                                   <button
+                                       onClick={() => handleEdit(haras.ID)}
+                                       className="edit text-blue-600 hover:underline">Editar
+                                   </button>
+                                   <button onClick={() => handleDelete(haras.ID)}
+                                           className="del  text-red-600  hover:underline">Excluir
+                                   </button>
+                               </td>
+                           </tr>
+                       ))}
+                   </Tabela>
+               }>
+            <EditModal
+                titulo="Editar Haras"
+                onCancel={() => setIsEditing("")}
+                onSubmit={handleSubmit}
+            >
+                <Input
+                    nome="Nome"
+                    placeHolder="Nome do Haras"
+                    valor={formData.Nome}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Nome: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="CNPJ"
+                    placeHolder="CNPJ"
+                    valor={formatarCNPJ(formData.CNPJ)}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({
+                        ...prev,
+                        CNPJ: value.replace(/\D/g, "").slice(0, 14)
+                    }))}
+                    variant="list"
+                />
+                <Input
+                    nome="CEP"
+                    placeHolder="CEP"
+                    valor={formatarCEP(formData.Cep)}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Cep: value.replace(/\D/g, "").slice(0, 8)}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Estado"
+                    placeHolder="Estado"
+                    valor={formData.Estado}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Estado: value}))}
+                    variant="list"
+                    disabled={cepValido.cep && cepValido.estado}
+                />
+                <Input
+                    nome="Cidade"
+                    placeHolder="Cidade"
+                    valor={formData.Cidade}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Cidade: value}))}
+                    variant="list"
+                    disabled={cepValido.cep && cepValido.cidade}
+                />
+                <Input
+                    nome="Bairro"
+                    placeHolder="Bairro"
+                    valor={formData.Bairro}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Bairro: value}))}
+                    variant="list"
+                    disabled={cepValido.cep && cepValido.bairro}
+                />
+                <Input
+                    nome="Rua"
+                    placeHolder="Rua"
+                    valor={formData.Rua}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Rua: value}))}
+                    variant="list"
+                    disabled={cepValido.cep && cepValido.logradouro}
+                />
+                <Input
+                    nome="Número"
+                    placeHolder="Número"
+                    valor={formData.Numero}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Numero: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Complemento"
+                    placeHolder="Complemento"
+                    valor={formData.Complemento}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, Complemento: value}))}
+                    variant="list"
+                />
+            </EditModal>
+        </Lista>
+    )
 }

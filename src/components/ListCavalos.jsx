@@ -6,6 +6,7 @@ import EditModal from "./EditModal.jsx";
 import Tabela from "./Tabela.jsx";
 import {formatarData} from '../utils';
 import Select from "./Select.jsx";
+import Lista from "./Lista.jsx";
 
 export default function ListCavalos({haras, search}) {
     const [aviso, setAviso] = useState(
@@ -48,13 +49,13 @@ export default function ListCavalos({haras, search}) {
                 }
             }).then(
                 data => {
-                setAviso({
-                    ativo: true,
-                    mensagem: "Cavalo excluído com sucesso.",
-                    titulo: "Sucesso"
-                });
-                updateHorses();
-            }).catch(error => {
+                    setAviso({
+                        ativo: true,
+                        mensagem: "Cavalo excluído com sucesso.",
+                        titulo: "Sucesso"
+                    });
+                    updateHorses();
+                }).catch(error => {
                 console.error("Erro ao excluir o Cavalo:", error);
                 setAviso({
                     ativo: true,
@@ -63,6 +64,7 @@ export default function ListCavalos({haras, search}) {
                 });
             });
         }
+
         setAviso({
             ativo: true,
             mensagem: "Tem certeza que deseja excluir este Cavalo?",
@@ -119,7 +121,7 @@ export default function ListCavalos({haras, search}) {
             });
             return;
         }
-        let url= `http://localhost:3000/api/cavalos/editar/${isEditing || 0}`;
+        let url = `http://localhost:3000/api/cavalos/editar/${isEditing || 0}`;
 
         fetch(url, {
             method: 'PUT',
@@ -203,133 +205,123 @@ export default function ListCavalos({haras, search}) {
     };
 
     return (
-        <div className="flex-grow p-6 space-y-6">
-            {aviso.ativo && (<Aviso onConfirm={aviso.onConfirm} titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
-            <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
-                <div className="flex items-center justify-left gap-4 mb-6">
-                    <Link to="#"
-                          className="bg-secondary font-heebo text-base font-bold text-tertiary px-5 py-2 rounded-md transition hover:bg-tertiary hover:text-secondary"> Adicionar
-                        Novo Cavalo</Link>
-                </div>
-                <Tabela campos={[
-                    "Nome",
-                    "Pelagem",
-                    "Peso",
-                    "Registro",
-                    "Sangue",
-                    "Sexo",
-                    "Situação",
-                    "Status",
-                    "Data de Nascimento"
-                ]}>
-                    {filteredHorseList.map((horse) => (
-                        <tr key={horse.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
-                            <td className="p-3">{horse.Nome}</td>
-                            <td className="p-3">{horse.Pelagem}</td>
-                            <td className="p-3">{horse.Peso}</td>
-                            <td className="p-3">{horse.Registro}</td>
-                            <td className="p-3">{horse.Sangue}</td>
-                            <td className="p-3">{horse.Sexo}</td>
-                            <td className="p-3">{horse.Situacao}</td>
-                            <td className="p-3">{horse.Status}</td>
-                            <td className="p-3">{formatarData(horse.Data_Nascimento)}</td>
+        <Lista isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
+               botaoNovo="Adicionar Novo Cavalo" tabela={
+            <Tabela campos={[
+                "Nome",
+                "Pelagem",
+                "Peso",
+                "Registro",
+                "Sangue",
+                "Sexo",
+                "Situação",
+                "Status",
+                "Data de Nascimento"
+            ]}>
+                {filteredHorseList.map((horse) => (
+                    <tr key={horse.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
+                        <td className="p-3">{horse.Nome}</td>
+                        <td className="p-3">{horse.Pelagem}</td>
+                        <td className="p-3">{horse.Peso}</td>
+                        <td className="p-3">{horse.Registro}</td>
+                        <td className="p-3">{horse.Sangue}</td>
+                        <td className="p-3">{horse.Sexo}</td>
+                        <td className="p-3">{horse.Situacao}</td>
+                        <td className="p-3">{horse.Status}</td>
+                        <td className="p-3">{formatarData(horse.Data_Nascimento)}</td>
 
-                            <td className="p-3 text-center">
-                                <button
-                                    onClick={() => handleEdit(horse.ID)}
-                                    className="bg-secondary text-tertiary px-4 py-2 rounded-md">Editar
-                                </button>
-                                <button onClick={() => handleDelete(horse.ID)} className="bg-red-500 text-white px-4 py-2 rounded-md ml-2">Excluir
-                                </button>
-                            </td>
-                        </tr>))}
-                </Tabela>
-            </div>
-            {/* modal edição*/}
-            {isEditing && (
-                <div id="modal" className="fixed inset-0 bg-black/50 flex items-center justify-center">
-                    <EditModal
-                        titulo="Editar Cavalo"
-                        onCancel={() => setIsEditing("")}
-                        onSubmit={handleSubmit}
-                    >
-                        <Input
-                            nome="Nome"
-                            placeHolder="Nome do Cavalo"
-                            valor={formData.nome}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, nome: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Pelagem"
-                            placeHolder="Pelagem do Cavalo"
-                            valor={formData.pelagem}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, pelagem: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Peso"
-                            placeHolder="Peso do Cavalo"
-                            valor={formData.peso}
-                            tipo="number"
-                            onchange={(value) => setFormData((prev) => ({...prev, peso: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Registro"
-                            placeHolder="Registro do Cavalo"
-                            valor={formData.registro}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, registro: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Sangue"
-                            placeHolder="Tipo Sanguíneo do Cavalo"
-                            valor={formData.sangue}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, sangue: value}))}
-                            variant="list"
-                        />
-                        <Select
-                            nome="Sexo"
-                            placeHolder="Sexo do Cavalo"
-                            valor={formData.sexo}
-                            options={[
-                                {value: "Macho", label: "Macho"},
-                                {value: "Fêmea", label: "Fêmea"}
-                            ]}
-                            onchange={(value) => setFormData((prev) => ({...prev, sexo: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Situação"
-                            placeHolder="Situação do Cavalo"
-                            valor={formData.situacao}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, situacao: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Status"
-                            placeHolder="Status do Cavalo"
-                            valor={formData.status}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, status: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Data de Nascimento"
-                            placeHolder="Data de Nascimento do Cavalo"
-                            valor={formData.data_nascimento}
-                            tipo="date"
-                            onchange={(value) => setFormData((prev) => ({...prev, data_nascimento: value}))}
-                            variant="list"
-                        />
-                    </EditModal>
-                </div>
-            )}
-        </div>)
+                        <td className="p-3 text-center space-x-2">
+                            <button
+                                onClick={() => handleEdit(horse.ID)}
+                                className="edit text-blue-600 hover:underline">Editar
+                            </button>
+                            <button onClick={() => handleDelete(horse.ID)}
+                                    className="del  text-red-600  hover:underline">Excluir
+                            </button>
+                        </td>
+                    </tr>))}
+            </Tabela>
+        }>
+            <EditModal
+                titulo="Editar Cavalo"
+                onCancel={() => setIsEditing("")}
+                onSubmit={handleSubmit}
+            >
+                <Input
+                    nome="Nome"
+                    placeHolder="Nome do Cavalo"
+                    valor={formData.nome}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, nome: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Pelagem"
+                    placeHolder="Pelagem do Cavalo"
+                    valor={formData.pelagem}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, pelagem: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Peso"
+                    placeHolder="Peso do Cavalo"
+                    valor={formData.peso}
+                    tipo="number"
+                    onchange={(value) => setFormData((prev) => ({...prev, peso: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Registro"
+                    placeHolder="Registro do Cavalo"
+                    valor={formData.registro}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, registro: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Sangue"
+                    placeHolder="Tipo Sanguíneo do Cavalo"
+                    valor={formData.sangue}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, sangue: value}))}
+                    variant="list"
+                />
+                <Select
+                    nome="Sexo"
+                    placeHolder="Sexo do Cavalo"
+                    valor={formData.sexo}
+                    options={[
+                        {value: "Macho", label: "Macho"},
+                        {value: "Fêmea", label: "Fêmea"}
+                    ]}
+                    onchange={(value) => setFormData((prev) => ({...prev, sexo: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Situação"
+                    placeHolder="Situação do Cavalo"
+                    valor={formData.situacao}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, situacao: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Status"
+                    placeHolder="Status do Cavalo"
+                    valor={formData.status}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, status: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Data de Nascimento"
+                    placeHolder="Data de Nascimento do Cavalo"
+                    valor={formData.data_nascimento}
+                    tipo="date"
+                    onchange={(value) => setFormData((prev) => ({...prev, data_nascimento: value}))}
+                    variant="list"
+                />
+            </EditModal>
+        </Lista>)
 }

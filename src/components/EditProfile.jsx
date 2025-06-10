@@ -242,7 +242,7 @@ export default function EditProfile({userData, reloadUser}) {
                 <Aviso titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false})}/>}
             <div className="container max-w-4xl mx-auto py-6 px-6 space-y-6">
                 {/* Título da página */}
-                <div className="mb-6">
+                <div className="mb-12">
                     <h1 className="text-3xl font-bold tracking-tight">Perfil do Usuário</h1>
                     <p className="text-muted-foreground mt-2">Gerencie suas informações pessoais e preferências de
                         conta</p>

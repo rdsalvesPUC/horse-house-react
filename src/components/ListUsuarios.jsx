@@ -13,6 +13,7 @@ import {
     validarTelefone
 } from '../utils';
 import Select from "./Select.jsx";
+import Lista from "./Lista.jsx";
 
 export default function ListUsuarios({haras, search}) {
     const [aviso, setAviso] = useState(
@@ -72,6 +73,7 @@ export default function ListUsuarios({haras, search}) {
                 });
             });
         }
+
         setAviso({
             ativo: true,
             mensagem: "Tem certeza que deseja excluir este Usuário?",
@@ -127,7 +129,7 @@ export default function ListUsuarios({haras, search}) {
                     mensagem: "Erro ao buscar usuários. Tente novamente mais tarde.",
                     titulo: "Erro"
                 });
-        })
+            })
     }
 
     const handleSubmit = (e) => {
@@ -257,123 +259,116 @@ export default function ListUsuarios({haras, search}) {
     }
 
     return (
-        <div className="flex-grow p-6 space-y-6">
-            {aviso.ativo && (<Aviso onConfirm={aviso.onConfirm} titulo={aviso.titulo} mensagem={aviso.mensagem} onClose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}/>)}
-            <div className="overflow-x-auto bg-tertiary rounded-lg shadow-lg">
-                <div className="flex items-center justify-left gap-4 mb-6">
-                    <Link to="#"
-                          className="bg-secondary font-heebo text-base font-bold text-tertiary px-5 py-2 rounded-md transition hover:bg-tertiary hover:text-secondary"> Adicionar
-                        Novo Usuário </Link>
-                    <div className="relative">
-                        <Select
-                            onchange={(valor) => {setTipo(valor)}}
-                            options={[
-                                { value: "gerente", label: "Gerente" },
-                                { value: "veterinario", label: "Veterinário" },
-                                { value: "treinador", label: "Treinador" },
-                                { value: "tratador", label: "Tratador" }
-                            ]}
-                            placeHolder="Tipo de Usuário"
-                            valor={tipo}
-                            nome="tipo-usuario"
-                            variant="topbar"
-                        />
-                        {/* setinha à direita */}
-                        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                        {/* Aqui você coloca um ícone de chevron-down */}
-                            ▼
-                    </span>
-                    </div>
-                </div>
-                <Tabela campos={[
-                    "Nome",
-                    "Sobrenome",
-                    "Email",
-                    "Telefone",
-                    "CPF",
-                    ...(tipo === "veterinario" ? ["CRMV"] : []),
-                    "Nascimento",]}>
-                    {filteredUserList.map((user) => {
-                        console.log(user);
-                        return <tr key={haras.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
-                            <td className="p-3">{user.nome}</td>
-                            <td className="p-3">{user.sobrenome}</td>
-                            <td className="p-3">{user.email}</td>
-                            <td className="p-3">{formatarTelefone(user.telefone)}</td>
-                            <td className="p-3">{formatarCPF(user.cpf)}</td>
-                            {tipo === "veterinario" && <td className="p-3">{user.crmv}</td>}
-                            <td className="p-3">{formatarData(user.data_nascimento)}</td>
+        <Lista botaoNovo="Adicionar novo Usuário" isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
+               selectTipo={
+                   <Select
+                       onchange={(valor) => {
+                           setTipo(valor)
+                       }}
+                       options={[
+                           {value: "gerente", label: "Gerente"},
+                           {value: "veterinario", label: "Veterinário"},
+                           {value: "treinador", label: "Treinador"},
+                           {value: "tratador", label: "Tratador"}
+                       ]}
+                       placeHolder="Tipo de Usuário"
+                       valor={tipo}
+                       nome="tipo-usuario"
+                       variant="topbar"
+                   />
+               }
+               tabela={
+                   <Tabela
+                       campos={[
+                           "Nome",
+                           "Sobrenome",
+                           "Email",
+                           "Telefone",
+                           "CPF",
+                           ...(tipo === "veterinario" ? ["CRMV"] : []),
+                           "Nascimento",
+                       ]}>
+                       {filteredUserList.map((user) => {
+                           console.log(user);
+                           return <tr key={haras.ID} className="border-b border-secondary/20 hover:bg-secondary/10">
+                               <td className="p-3">{user.nome}</td>
+                               <td className="p-3">{user.sobrenome}</td>
+                               <td className="p-3">{user.email}</td>
+                               <td className="p-3">{formatarTelefone(user.telefone)}</td>
+                               <td className="p-3">{formatarCPF(user.cpf)}</td>
+                               {tipo === "veterinario" && <td className="p-3">{user.crmv}</td>}
+                               <td className="p-3">{formatarData(user.data_nascimento)}</td>
 
 
-                            <td className="p-3 text-center">
-                                <button
-                                    onClick={() => handleEdit(user.ID)}
-                                    className="bg-secondary text-tertiary px-4 py-2 rounded-md">Editar
-                                </button>
-                                <button onClick={() => handleDelete(user.ID)} className="bg-red-500 text-white px-4 py-2 rounded-md ml-2">Excluir
-                                </button>
-                            </td>
-                        </tr>
-                })}
-                </Tabela>
-            </div>
-            {/* modal edição*/}
-            {isEditing && (
-                <div id="modal" className="fixed inset-0 bg-black/50 items-center justify-center">
-                    <EditModal
-                        titulo="Editar Usuário"
-                        onCancel={() => setIsEditing("")}
-                        onSubmit={handleSubmit}
-                    >
-                        <Input
-                            nome="Nome"
-                            placeHolder="Nome do Usuário"
-                            valor={formData.nome}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, nome: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Sobrenome"
-                            placeHolder="Sobrenome do Usuário"
-                            valor={formData.sobrenome}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, sobrenome: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Email"
-                            placeHolder="Email do Usuário"
-                            valor={formData.email}
-                            tipo="email"
-                            onchange={(value) => setFormData((prev) => ({...prev, email: value}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Telefone"
-                            placeHolder="Telefone do Usuário"
-                            valor={formatarTelefone(formData.telefone)}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, telefone: value.replace(/\D/g, "").slice(0, 11)}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="CPF"
-                            placeHolder="CPF do Usuário"
-                            valor={formatarCPF(formData.cpf)}
-                            tipo="text"
-                            onchange={(value) => setFormData((prev) => ({...prev, cpf: value.replace(/\D/g, "").slice(0, 11)}))}
-                            variant="list"
-                        />
-                        <Input
-                            nome="Data de Nascimento"
-                            placeHolder="Data de Nascimento do Usuário"
-                            valor={formData.data_nascimento}
-                            tipo="date"
-                            onchange={(value) => setFormData((prev) => ({...prev, data_nascimento: value}))}
-                            variant="list"
-                        />
-                    </EditModal>
-                </div>)}
-        </div>)
+                               <td className="p-3 text-center space-x-2">
+                                   <button
+                                       onClick={() => handleEdit(user.ID)}
+                                       className="edit text-blue-600 hover:underline">Editar
+                                   </button>
+                                   <button onClick={() => handleDelete(user.ID)}
+                                           className="del  text-red-600  hover:underline">Excluir
+                                   </button>
+                               </td>
+                           </tr>
+                       })}
+                   </Tabela>
+               }>
+            <EditModal
+                titulo="Editar Usuário"
+                onCancel={() => setIsEditing("")}
+                onSubmit={handleSubmit}
+            >
+                <Input
+                    nome="Nome"
+                    placeHolder="Nome do Usuário"
+                    valor={formData.nome}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, nome: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Sobrenome"
+                    placeHolder="Sobrenome do Usuário"
+                    valor={formData.sobrenome}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, sobrenome: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Email"
+                    placeHolder="Email do Usuário"
+                    valor={formData.email}
+                    tipo="email"
+                    onchange={(value) => setFormData((prev) => ({...prev, email: value}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Telefone"
+                    placeHolder="Telefone do Usuário"
+                    valor={formatarTelefone(formData.telefone)}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({
+                        ...prev,
+                        telefone: value.replace(/\D/g, "").slice(0, 11)
+                    }))}
+                    variant="list"
+                />
+                <Input
+                    nome="CPF"
+                    placeHolder="CPF do Usuário"
+                    valor={formatarCPF(formData.cpf)}
+                    tipo="text"
+                    onchange={(value) => setFormData((prev) => ({...prev, cpf: value.replace(/\D/g, "").slice(0, 11)}))}
+                    variant="list"
+                />
+                <Input
+                    nome="Data de Nascimento"
+                    placeHolder="Data de Nascimento do Usuário"
+                    valor={formData.data_nascimento}
+                    tipo="date"
+                    onchange={(value) => setFormData((prev) => ({...prev, data_nascimento: value}))}
+                    variant="list"
+                />
+            </EditModal>
+        </Lista>)
 }
