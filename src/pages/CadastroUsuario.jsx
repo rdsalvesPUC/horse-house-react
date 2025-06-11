@@ -4,11 +4,11 @@ import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import ListUsuarios from "../components/ListUsuarios.jsx";
 import {useUser} from "../contexts/UserData.jsx";
+import CadastrarUsuarios from "../components/CadastrarUsuarios.jsx";
 import {chooseHaras} from "../contexts/ChooseHaras.jsx";
 
-export default function Usuarios() {
+export default function CadastroUsuario() {
     const navigate = useNavigate();
-    const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = chooseHaras();
     const [userData, updateUser] = useUser();
@@ -64,10 +64,10 @@ export default function Usuarios() {
         <div className="flex h-screen">
             <Sidebar selected="usuarios" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
+                <Topbar disableSearch={true} harasList={harasList} userData={userData}
                         choseHaras={(harasID) => setHaras(harasID)} haras = {haras} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
-                    <ListUsuarios search={search} updateHaras={updateHaras} haras={haras}/>
+                    <CadastrarUsuarios updateHaras={updateHaras} haras={haras}/>
                 </main>
             </div>
         </div>

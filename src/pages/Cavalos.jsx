@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import ListCavalos from "../components/ListCavalos.jsx";
 import {useUser} from "../contexts/UserData.jsx";
+import {chooseHaras} from "../contexts/ChooseHaras.jsx";
 
 export default function Cavalos() {
     let userType = localStorage.getItem('userType');
@@ -16,7 +17,7 @@ export default function Cavalos() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
-    const [haras, setHaras] = useState("")
+    const [haras, setHaras] = chooseHaras();
     const [userData, updateUser] = useUser();
 
     useEffect(() => {

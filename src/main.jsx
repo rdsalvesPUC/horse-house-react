@@ -5,13 +5,16 @@ import App from './App.jsx'
 import Home from "./pages/Home.jsx";
 import {UserProvider} from "./contexts/UserData.jsx";
 import {SidebarProvider} from "./contexts/ToggleSidebar.jsx";
+import {HarasProvider} from "./contexts/ChooseHaras.jsx";
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <UserProvider>
-            <SidebarProvider>
-                <App/>
-            </SidebarProvider>
+            <HarasProvider>
+                <SidebarProvider>
+                    <App/>
+                </SidebarProvider>
+            </HarasProvider>
         </UserProvider>
     </StrictMode>,
 )

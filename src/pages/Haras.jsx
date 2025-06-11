@@ -6,6 +6,7 @@ import EditProfile from "../components/EditProfile.jsx";
 import ListHaras from "../components/ListHaras.jsx";
 import * as sea from "node:sea";
 import {useUser} from "../contexts/UserData.jsx";
+import {chooseHaras} from "../contexts/ChooseHaras.jsx";
 
 export default function Haras() {
     let userType = localStorage.getItem('userType');
@@ -18,7 +19,7 @@ export default function Haras() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
-    const [haras, setHaras] = useState("")
+    const [haras, setHaras] = chooseHaras();
     const [userData, updateUser] = useUser();
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');

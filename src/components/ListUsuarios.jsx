@@ -14,6 +14,7 @@ import {
 } from '../utils';
 import Select from "./Select.jsx";
 import Lista from "./Lista.jsx";
+import Botao from "./Botao.jsx";
 
 export default function ListUsuarios({haras, search}) {
     const [aviso, setAviso] = useState(
@@ -259,7 +260,8 @@ export default function ListUsuarios({haras, search}) {
     }
 
     return (
-        <Lista botaoNovo="Adicionar novo Usuário" isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
+        <Lista link="/cadastrar-usuario" botaoNovo="Adicionar Novo Usuário" isEditing={isEditing} aviso={aviso}
+               onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
                selectTipo={
                    <Select
                        onchange={(valor) => {
@@ -301,13 +303,12 @@ export default function ListUsuarios({haras, search}) {
 
 
                                <td className="p-3 text-center space-x-2">
-                                   <button
-                                       onClick={() => handleEdit(user.ID)}
-                                       className="edit text-blue-600 hover:underline">Editar
-                                   </button>
-                                   <button onClick={() => handleDelete(user.ID)}
-                                           className="del  text-red-600  hover:underline">Excluir
-                                   </button>
+                                   <Botao variant="edit" onClick={() => handleEdit(user.ID)}>
+                                       Editar
+                                   </Botao>
+                                   <Botao variant="delete" onClick={() => handleDelete(user.ID)}>
+                                       Excluir
+                                   </Botao>
                                </td>
                            </tr>
                        })}

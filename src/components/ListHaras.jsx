@@ -4,6 +4,7 @@ import EditModal from "./EditModal.jsx";
 import Tabela from "./Tabela.jsx";
 import {formatarCNPJ, formatarCEP, validarCNPJ} from '../utils';
 import Lista from "./Lista.jsx";
+import Botao from "./Botao.jsx";
 
 export default function ListHaras({harasList, updateHaras, search}) {
     const [aviso, setAviso] = useState(
@@ -243,7 +244,8 @@ export default function ListHaras({harasList, updateHaras, search}) {
         }
     }, [formData.Cep]);
     return (
-        <Lista isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})} botaoNovo="Adicionar novo Haras"
+        <Lista isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
+               botaoNovo="Adicionar Novo Haras"
                tabela={
                    <Tabela
                        campos={["Nome", "CNPJ", "CEP", "Estado", "Cidade", "Bairro", "Rua", "Número", "Complemento"]}>
@@ -259,13 +261,12 @@ export default function ListHaras({harasList, updateHaras, search}) {
                                <td className="p-3">{haras.Numero}</td>
                                <td className="p-3">{haras.Complemento}</td>
                                <td className="p-3 text-center space-x-2">
-                                   <button
-                                       onClick={() => handleEdit(haras.ID)}
-                                       className="edit text-blue-600 hover:underline">Editar
-                                   </button>
-                                   <button onClick={() => handleDelete(haras.ID)}
-                                           className="del  text-red-600  hover:underline">Excluir
-                                   </button>
+                                   <Botao variant="edit" onClick={() => handleEdit(haras.ID)}>
+                                       Editar
+                                   </Botao>
+                                   <Botao variant="delete" onClick={() => handleDelete(haras.ID)}>
+                                       Excluir
+                                   </Botao>
                                </td>
                            </tr>
                        ))}

@@ -13,6 +13,7 @@ import {
     validarTelefone,
     validarNome
 } from '../utils';
+import Botao from "../components/Botao.jsx";
 
 export default function CadastroProprietario() {
     const [aviso, setAviso] = useState(
@@ -271,7 +272,7 @@ export default function CadastroProprietario() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input nome={"Nome"}
                                            tipo={"text"}
-                                           erro={validarNome(formData.nome)}
+                                           erro={!validarNome(formData.nome)}
                                            textoErro={"O Nome é obrigatório."}
                                            placeHolder={"Digite seu nome"}
                                            onchange={(value) => setFormData({...formData, nome: value})}
@@ -280,7 +281,7 @@ export default function CadastroProprietario() {
                                     />
                                     <Input nome={"Sobrenome"}
                                            tipo={"text"}
-                                           erro={validarNome(formData.sobrenome)}
+                                           erro={!validarNome(formData.sobrenome)}
                                            textoErro={"O Sobrenome é obrigatório."}
                                            placeHolder={"Digite seu sobrenome"}
                                            onchange={(value) => setFormData({...formData, sobrenome: value})}
@@ -288,7 +289,9 @@ export default function CadastroProprietario() {
                                            variant="form"
                                     />
                                 </div>
-                                <button type="button" className="btn-form-next" onClick={handleNext}>Próximo</button>
+                                <Botao variant="next" onClick={handleNext}>
+                                    Próximo
+                                </Botao>
                             </section>
                         )}
                         {currentStep === 2 && (
@@ -330,11 +333,12 @@ export default function CadastroProprietario() {
                                     variant="form"
                                 />
                                 <div className="flex gap-8">
-                                    <button type="button" className="btn-form-previous"
-                                            onClick={handlePrevious}>Voltar
-                                    </button>
-                                    <button type="button" className="btn-form-next" onClick={handleNext}>Próximo
-                                    </button>
+                                    <Botao variant="previous" onClick={handlePrevious}>
+                                        Voltar
+                                    </Botao>
+                                    <Botao variant="next" onClick={handleNext}>
+                                        Próximo
+                                    </Botao>
                                 </div>
                             </section>
                         )}
@@ -424,11 +428,12 @@ export default function CadastroProprietario() {
                                 </div>
 
                                 <div className="flex gap-8">
-                                    <button type="button" className="btn-form-previous"
-                                            onClick={handlePrevious}>Voltar
-                                    </button>
-                                    <button type="button" className="btn-form-next" onClick={handleNext}>Próximo
-                                    </button>
+                                    <Botao variant="previous" onClick={handlePrevious}>
+                                        Voltar
+                                    </Botao>
+                                    <Botao variant="next" onClick={handleNext}>
+                                        Próximo
+                                    </Botao>
                                 </div>
                             </section>
                         )}
@@ -469,10 +474,12 @@ export default function CadastroProprietario() {
                                     )}
                                 </div>
                                 <div className="flex gap-8">
-                                    <button type="button" className="btn-form-previous"
-                                            onClick={handlePrevious}>Voltar
-                                    </button>
-                                    <button type="submit" className="btn-form-next">Concluir Cadastro</button>
+                                    <Botao variant="previous" onClick={handlePrevious}>
+                                        Voltar
+                                    </Botao>
+                                    <Botao variant="next" type="submit">
+                                        Finalizar Cadastro
+                                    </Botao>
                                 </div>
                             </section>
                         )}

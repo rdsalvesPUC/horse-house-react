@@ -24,6 +24,11 @@ export default function Input({
             label: "inline-block text-sm font-medium mb-2 text-primary",
             input: "w-full p-3 border rounded-md text-sm border-secondary",
             error: "text-error text-sm"
+        },
+        register: {
+            label: "font-medium",
+            input: "mt-2 w-full rounded-md p-3 text-sm border border-secondary",
+            error: "text-error text-sm mt-1"
         }
     };
     return (
