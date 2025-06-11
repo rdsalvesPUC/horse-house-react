@@ -2,17 +2,10 @@ import Input from "./Input.jsx";
 import {useState, useEffect} from "react";
 import Aviso from "./Aviso.jsx";
 import { formatarTelefone, formatarCEP, formatarCPF, validarEmail } from '../utils';
+import useCep from "../hooks/useCep.jsx";
 
 export default function EditProfile({userData, reloadUser}) {
-    const [cepValido, setCepValido] = useState(
-        {
-            cep: false,
-            estado: "",
-            cidade: "",
-            bairro: "",
-            logradouro: ""
-        }
-    );
+    const [cepValido, buscarCep] = useCep();
     const [aviso, setAviso] = useState(
         {
             ativo: false,
@@ -44,67 +37,20 @@ export default function EditProfile({userData, reloadUser}) {
 
     useEffect(() => {
         if (formData.cep && formData.cep.length === 8) {
-            fetch(`https://viacep.com.br/ws/${formData.cep}/json/`)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (!data.erro) {
-                        const estado = data.uf;
-                        const cidade = data.localidade;
-                        const bairro = data.bairro;
-                        const logradouro = data.logradouro;
-                        setCepValido(
-                            {
-                                cep: true,
-                                estado: estado,
-                                cidade: cidade,
-                                bairro: bairro,
-                                logradouro: logradouro
-                            }
-                        );
-                        setFormData((prevState) => ({
-                            ...prevState,
-                            logradouro: data.logradouro,
-                            bairro: data.bairro,
-                            cidade: data.localidade,
-                            estado: data.estado
-                        }));
-                    } else {
-                        setCepValido(
-                            {
-                                cep: false,
-                                estado: "",
-                                cidade: "",
-                                bairro: "",
-                                logradouro: ""
-                            }
-                        );
-                        console.error("CEP inválido");
-                    }
-                })
-                .catch((error) => {
-                    setCepValido(
-                        {
-                            cep: false,
-                            estado: "",
-                            cidade: "",
-                            bairro: "",
-                            logradouro: ""
-                        }
-                    );
-                    console.error("Erro ao buscar o CEP:", error);
-                })
-        } else {
-            setCepValido(
-                {
-                    cep: false,
-                    estado: "",
-                    cidade: "",
-                    bairro: "",
-                    logradouro: ""
-                }
-            );
+            buscarCep(formData.cep)
         }
-    }, [formData.cep]);
+    }, [formData.cep, buscarCep]);
+    useEffect(() => {
+        if (cepValido.cep) {
+            setFormData((prev) => ({
+                ...prev,
+                estado: cepValido.estado,
+                cidade: cepValido.cidade,
+                bairro: cepValido.bairro,
+                logradouro: cepValido.logradouro
+            }));
+        }
+    }, [cepValido, setFormData]);
 
     function formatarData(data) {
         if (!data) return "";
@@ -386,7 +332,7 @@ export default function EditProfile({userData, reloadUser}) {
                                     />
                                     {/* Cidade */}
                                     <Input nome="Cidade"
-                                           disabled={cepValido.cep && formData.cidade}
+                                           disabled={cepValido.cep && cepValido.cidade}
                                            onchange={(value) => setFormData(
                                                (prev) => ({...prev, cidade: value})
                                            )}

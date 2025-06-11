@@ -1,4 +1,6 @@
-export default function ModalCadastro({children, titulo, subtitulo}) {
+import Botao from "./Botao.jsx";
+
+export default function ModalCadastro({children, titulo, subtitulo, handleSubmit, link}) {
     return (
         <div className="container max-w-4xl mx-auto py-6 px-6 space-y-6">
             <div className="flex flex-row flex-1 justify-between">
@@ -7,11 +9,11 @@ export default function ModalCadastro({children, titulo, subtitulo}) {
                     <p className="text-muted-foreground mt-2">{subtitulo}</p>
                 </div>
                 <div>
-                    <button type="button" data-view="usuarios" className="btn-form-previous">Voltar</button>
+                    <Botao to={link} variant="previous">Voltar</Botao>
                 </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
-                <form id="form-cadastro">
+                <form onSubmit={handleSubmit} id="form-cadastro">
                     <div className="flex flex-col gap-8">
                         {children}
                         <button type="submit"

@@ -244,7 +244,7 @@ export default function ListHaras({harasList, updateHaras, search}) {
         }
     }, [formData.Cep]);
     return (
-        <Lista isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
+        <Lista link="/cadastrar-haras" isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
                botaoNovo="Adicionar Novo Haras"
                tabela={
                    <Tabela

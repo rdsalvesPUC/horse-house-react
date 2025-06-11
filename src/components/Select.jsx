@@ -20,6 +20,11 @@ export default function Select({
             label: "inline-block text-sm font-medium mb-2 text-primary",
             select: "w-full p-3 border rounded-md text-sm border-secondary appearance-none",
             error: "text-error text-sm"
+        },
+        register: {
+            label: "font-medium",
+            select: "w-full rounded-md p-3 text-sm border border-secondary appearance-none",
+            error: "text-error text-sm mt-1"
         }
     };
 

@@ -67,7 +67,7 @@ export default function CadastroUsuario() {
                 <Topbar disableSearch={true} harasList={harasList} userData={userData}
                         choseHaras={(harasID) => setHaras(harasID)} haras = {haras} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
-                    <CadastrarUsuarios updateHaras={updateHaras} haras={haras}/>
+                    <CadastrarUsuarios haras={haras} userType={userData.cargo}/>
                 </main>
             </div>
         </div>

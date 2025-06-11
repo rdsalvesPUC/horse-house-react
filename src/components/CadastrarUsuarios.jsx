@@ -1,14 +1,22 @@
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
-import {useUser} from "../contexts/UserData.jsx";
 import ModalCadastro from "./ModalCadastro.jsx";
 import Input from "./Input.jsx";
+import {
+    formatarCPF,
+    formatarTelefone,
+    validarCPF,
+    validarEmail,
+    validarNome,
+    validarSenha,
+    validarTelefone
+} from "../utils.js";
+import InputSenha from "./InputSenha.jsx";
+import Select from "./Select.jsx";
+import Aviso from "./Aviso.jsx";
+import {useUser} from "../contexts/UserData.jsx";
 
-export default function CadastrarUsuarios() {
-    const navigate = useNavigate();
-    const [harasList, setHarasList] = useState([]);
-    const [haras, setHaras] = useState("");
-    const [userData, updateUser] = useUser();
+export default function CadastrarUsuarios({haras, userType}) {
     const [formData, setFormData] = useState({
         nome: "",
         sobrenome: "",
@@ -18,114 +26,206 @@ export default function CadastrarUsuarios() {
         cpf: "",
         dataNascimento: "",
         tipoUsuario: "",
-        harasId: "",
         crmv: ""
     })
+    const [aviso, setAviso] = useState(
+        {
+            ativo: false,
+            mensagem: "",
+            titulo: ""
+        });
+    const navigate = useNavigate();
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const TOKEN = localStorage.getItem('token');
+        const data = {
+            nome: formData.nome.trim(),
+            sobrenome: formData.sobrenome.trim(),
+            email: formData.email.trim(),
+            senha: formData.senha.trim(),
+            telefone: formData.telefone,
+            cpf: formData.cpf,
+            dataNascimento: formData.dataNascimento,
+            crmv: formData.tipoUsuario === "veterinario" ? formData.crmv.trim() : "",
+            haras_id: haras
+        };
+        let url;
+        switch (formData.tipoUsuario) {
+            case "gerente":
+                url = "http://localhost:3000/api/criarGerente";
+                break;
+            case "treinador":
+                url = "http://localhost:3000/api/treinador";
+                break;
+            case "tratador":
+                url = "http://localhost:3000/api/tratador";
+                break;
+            case "veterinario":
+                url = "http://localhost:3000/api/veterinario";
+                break;
+            default:
+                setAviso({
+                    ativo: true,
+                    mensagem: "Tipo de usuário inválido.",
+                    titulo: "Erro no Cadastro"
+                });
+                return;
+        }
+        if (!validarNome(formData.nome) || !validarNome(formData.sobrenome) || !validarEmail(formData.email) || !validarSenha(formData.senha, formData.senha) || !validarTelefone(formData.telefone) || !validarCPF(formData.cpf) || !formData.dataNascimento || (formData.tipoUsuario === "veterinario" && !formData.crmv)) {
+            setAviso({
+                ativo: true,
+                mensagem: "Por favor, preencha todos os campos corretamente.",
+                titulo: "Erro no Cadastro"
+            });
+            return;
+        }
+        if (userType === "Proprietário" && !haras) {
+            setAviso({
+                ativo: true,
+                mensagem: "Por favor, selecione um Haras antes de cadastrar usuários.",
+                titulo: "Erro no Cadastro"
+            });
+            return;
+        }
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${TOKEN}`,
+            },
+            body: JSON.stringify(data)
+        }).then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else if (response.status === 409) {
+                return response.json().then((data) => {
+                    throw new Error("Usuário já cadastrado");
+                });
+            } else {
+                throw new Error("Erro ao cadastrar usuário");
+            }
+        }).then((data) => {
+            setAviso({
+                ativo: true,
+                mensagem: "Usuário cadastrado com sucesso!",
+                titulo: "Cadastro Concluído",
+                onConfirm: () => {
+                    navigate("/usuarios")
+                }
+            });
+        }).catch((error) => {
+            if (error.message === "Usuário já cadastrado") {
+                setAviso({
+                    ativo: true,
+                    mensagem: "Usuário já cadastrado. Por favor, verifique os dados e tente novamente.",
+                    titulo: "Erro no Cadastro"
+                });
+            } else {
+                setAviso({
+                    ativo: true,
+                    mensagem: "Erro ao cadastrar usuário. Por favor, tente novamente mais tarde.",
+                    titulo: "Erro no Cadastro"
+                });
+            }
+        });
+    }
     return (
-        <ModalCadastro titulo="Cadastro de Usuários" subtitulo="Cadastre todos os tipos de funcionários no seu Haras">
-            <Input nome="Nome"
-                   erro={false}
-                   textoErro="O Nome é obrigatório."
-                   placeHolder="Digite seu nome"
-                   valor={formData.nome}
-                   tipo="text"
-                   onchange={(value) => setFormData({...formData, nome: value})}
-                   variant="register"/>
-            <Input nome="Sobrenome"
-                   erro={false}
-                   textoErro="O Sobrenome é obrigatório."
-                   placeHolder="Digite seu sobrenome"
-                   valor={formData.sobrenome}
-                   tipo="text"
-                   onchange={(value) => setFormData({...formData, sobrenome: value})}
-                   variant="register"/>
+        <>
+            {aviso.ativo && (
+                <Aviso mensagem={aviso.mensagem} titulo={aviso.titulo}
+                       onClose={() => {
+                           setAviso({ativo: false, titulo: "", mensagem: ""});
+                           if (aviso.onConfirm) {
+                               aviso.onConfirm();
+                           }
+                       }}
+                />)}
+            <ModalCadastro link="/usuarios" handleSubmit={handleSubmit} titulo="Cadastro de Usuários"
+                           subtitulo="Cadastre todos os tipos de funcionários no seu Haras">
+                <Input nome="Nome"
+                       erro={!validarNome(formData.nome)}
+                       textoErro="O Nome é obrigatório."
+                       placeHolder="Digite seu nome"
+                       valor={formData.nome}
+                       tipo="text"
+                       onchange={(value) => setFormData({...formData, nome: value})}
+                       variant="register"/>
+                <Input nome="Sobrenome"
+                       erro={!validarNome(formData.sobrenome)}
+                       textoErro="O Sobrenome é obrigatório."
+                       placeHolder="Digite seu sobrenome"
+                       valor={formData.sobrenome}
+                       tipo="text"
+                       onchange={(value) => setFormData({...formData, sobrenome: value})}
+                       variant="register"/>
+                <Input nome="Email"
+                       erro={!validarEmail(formData.email)}
+                       textoErro="O Email é obrigatório."
+                       placeHolder="Digite seu email"
+                       valor={formData.email}
+                       tipo="text"
+                       onchange={(value) => setFormData({...formData, email: value})}
+                       variant="register"/>
+                <InputSenha nome="Senha"
+                            textoErro="A Senha é obrigatória."
+                            placeHolder="Digite sua senha"
+                            valor={formData.senha}
+                            onchange={(value) => setFormData({...formData, senha: value})}
+                            passwordRequirements={true}
+                            variant="usuario"
+                />
+                <Input nome="Telefone"
+                       erro={!validarTelefone(formData.telefone)}
+                       textoErro="O Telefone é obrigatório."
+                       placeHolder="Digite seu telefone"
+                       valor={formatarTelefone(formData.telefone)}
+                       tipo="text"
+                       onchange={(value) => setFormData({...formData, telefone: value.replace(/\D/g, '').slice(0, 11)})}
+                       variant="register"/>
 
+                <Input nome="CPF"
+                       erro={!validarCPF(formData.cpf)}
+                       textoErro="O CPF é obrigatório."
+                       placeHolder="Digite seu CPF"
+                       valor={formatarCPF(formData.cpf)}
+                       tipo="text"
+                       onchange={(value) => setFormData({...formData, cpf: value.replace(/\D/g, '').slice(0, 11)})}
+                       variant="register"/>
+                <Input nome="Data de Nascimento"
+                       erro={!formData.dataNascimento}
+                       textoErro="A Data de Nascimento é obrigatória."
+                       placeHolder="Selecione sua data de nascimento"
+                       valor={formData.dataNascimento}
+                       tipo="date"
+                       onchange={(value) => setFormData({...formData, dataNascimento: value})}
+                       variant="register"/>
 
-            {/*EMAIL*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="font-medium">E-mail<span className="text-error"> *</span></label>
-                <input id="email" type="text" className="rounded-md p-3 text-sm border border-secondary"
-                       placeholder="Digite seu e-mail"/>
-                <p id="email-erro" className="text-error text-sm mt-1 hidden">O E-mail é obrigatório.</p>
-                <span id="email-invalido"
-                      className="text-error text-sm hidden">Insira um e-mail válido.</span>
-            </div>
-
-            {/*SENHA*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="senha" className="font-medium">Senha<span
-                    className="text-error"> *</span></label>
-                <input id="senha" type="password" className="rounded-md p-3 text-sm border border-secondary"
-                       placeholder="Digite sua senha"/>
-                <p id="senha-erro" className="text-error text-sm mt-1 hidden">A Senha é obrigatória.</p>
-                <div className="text-sm text-gray-600 mt-2">
-                    <div id="senha-requisitos" className="font-medium">A senha deve conter:</div>
-                    <ul className="list-disc list-inside">
-                        <li id="req-maiuscula" className="text-error">Pelo menos uma letra maiúscula</li>
-                        <li id="req-numero" className="text-error">Pelo menos um número</li>
-                        <li id="req-especial" className="text-error">Pelo menos um caractere especial</li>
-                        <li id="req-tamanho" className="text-error">Mínimo de 6 caracteres</li>
-                    </ul>
-                </div>
-            </div>
-
-            {/*TELEFONE*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="telefone" className="font-medium">Telefone<span
-                    className="text-error"> *</span></label>
-                <input id="telefone" type="text" className="rounded-md p-3 text-sm border border-secondary"
-                       placeholder="Digite seu telefone"/>
-                <p id="telefone-erro" className="text-error text-sm mt-1 hidden">O Telefone é
-                    obrigatório.</p>
-                <span id="telefone-invalido" className="text-error text-sm hidden">Insira um telefone válido (10 a 11 dígitos).</span>
-            </div>
-
-            {/*CPF*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="cpf" className="font-medium">CPF<span
-                    className="text-error"> *</span></label>
-                <input id="cpf" type="text" className="rounded-md p-3 text-sm border border-secondary"
-                       placeholder="Digite seu CPF"/>
-                <p id="cpf-erro" className="text-error text-sm mt-1 hidden">O CPF é obrigatório.</p>
-                <span id="cpf-invalido" className="text-error text-sm hidden">CPF inválido! Digite um CPF válido.</span>
-            </div>
-
-            {/*DATA DE NASCIMENTO*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="dataNascimento" className="font-medium">Data de Nascimento<span
-                    className="text-error"> *</span></label>
-                <input id="dataNascimento" type="date"
-                       className="rounded-md p-3 text-sm border border-secondary"/>
-                <p id="data-nascimento-erro" className="text-error text-sm mt-1 hidden">A Data de Nascimento
-                    é obrigatória.</p>
-                <p id="data-nascimento-invalida" className="text-error text-sm mt-1 hidden">Insira uma data
-                    de nascimento válida.</p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <label htmlFor="tipoUsuario" className="font-medium">Tipo de Usuário</label>
-                <select id="tipoUsuario" className="rounded-md p-3 text-sm border border-secondary">
-                    <option value="">Selecione</option>
-                    <option value="Gerente">Gerente</option>
-                    <option value="Treinador">Treinador</option>
-                    <option value="Tratador">Tratador</option>
-                    <option value="Veterinario">Veterinário</option>
-                </select>
-                <span id="erro-tipoUsuario" className="text-xs text-red-500 hidden">Selecione um tipo de usuário</span>
-            </div>
-            <div id="container-haras" className="hidden flex flex-col gap-2">
-                <label htmlFor="select-haras" className="font-medium">Selecione o Haras</label>
-                <select id="select-haras" className="rounded-md p-3 text-sm border border-secondary">
-                    <option value="">Selecione o Haras</option>
-                </select>
-                <span id="erro-haras" className="text-xs text-red-500 hidden">Selecione um Haras</span>
-            </div>
-            <div id="campo-crmv" className="hidden flex flex-col gap-2">
-                <label htmlFor="crmv" className="font-medium">CRMV</label>
-                <input id="crmv" type="text" className="rounded-md p-3 text-sm border border-secondary"
-                       placeholder="Digite o CRMV"/>
-                <span id="erro-crmv" className="text-xs text-red-500 hidden">CRMV inválido</span>
-            </div>
-        </ModalCadastro>
+                <Select nome="Tipo de Usuário"
+                        erro={!formData.tipoUsuario}
+                        textoErro="Selecione um Tipo de Usuário."
+                        valor={formData.tipoUsuario}
+                        onchange={(value) => {
+                            setFormData({...formData, tipoUsuario: value});
+                        }}
+                        placeHolder="Selecione"
+                        options={[
+                            {value: "gerente", label: "Gerente"},
+                            {value: "treinador", label: "Treinador"},
+                            {value: "tratador", label: "Tratador"},
+                            {value: "veterinario", label: "Veterinário"}
+                        ]}
+                        required={true}
+                        variant="register"
+                />
+                {formData.tipoUsuario === "veterinario" && (
+                    <Input nome="CRMV"
+                           textoErro="O CRMV é obrigatório."
+                           placeHolder="Digite o CRMV"
+                           valor={formData.crmv}
+                           onchange={(value) => setFormData({...formData, crmv: value})}
+                           variant="register"/>
+                )}
+            </ModalCadastro>
+        </>
     );
 }

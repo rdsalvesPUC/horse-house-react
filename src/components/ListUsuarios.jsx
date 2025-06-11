@@ -46,7 +46,7 @@ export default function ListUsuarios({haras, search}) {
     });
     const handleDelete = (id) => {
         function deletar(id) {
-            fetch(`http://localhost:3000/api/haras/${id}`, {
+            fetch(`http://localhost:3000/api/deletarFuncionario/${tipo}/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
