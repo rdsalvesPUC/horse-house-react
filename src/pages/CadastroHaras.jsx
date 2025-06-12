@@ -7,7 +7,10 @@ import CadastrarHaras from "../components/CadastrarHaras.jsx";
 
 export default function CadastroHaras() {
     const navigate = useNavigate();
-    const [userData, updateUser] = useUser();
+    const [userData, updateUser, logout] = useUser();
+    if ((userData !== "Proprietário")) {
+        navigate("/dashboard")
+    }
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');
         fetch(`http://localhost:3000/api/requerProprietario`, {
@@ -20,7 +23,7 @@ export default function CadastroHaras() {
             return response.json();
         }).then((data) => {
                 if (data.login) {
-                    localStorage.removeItem('token');
+                    logout();
                     navigate("/login")
                 } else if (data.error) {
                     navigate("/dashboard")
@@ -36,7 +39,7 @@ export default function CadastroHaras() {
         <div className="flex h-screen">
             <Sidebar selected="haras" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar disableSearch={true} disableSelect={true} userData={userData} updateUser={updateUser}/>
+                <Topbar logout={logout} disableSearch={true} disableSelect={true} userData={userData} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <CadastrarHaras/>
                 </main>

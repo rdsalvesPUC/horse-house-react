@@ -9,18 +9,11 @@ import {useUser} from "../contexts/UserData.jsx";
 import {chooseHaras} from "../contexts/ChooseHaras.jsx";
 
 export default function Haras() {
-    let userType = localStorage.getItem('userType');
-    if (userType === "proprietario") {
-        userType = "Proprietário";
-    }
-    const nome = localStorage.getItem('nome');
-    const sobrenome = localStorage.getItem('sobrenome');
-    const foto = localStorage.getItem('foto');
     const navigate = useNavigate();
     const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = chooseHaras();
-    const [userData, updateUser] = useUser();
+    const [userData, updateUser, logout] = useUser();
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');
         fetch(`http://localhost:3000/api/requerProprietario`, {
@@ -33,7 +26,7 @@ export default function Haras() {
             return response.json();
         }).then((data) => {
                 if (data.login) {
-                    localStorage.removeItem('token');
+                    logout();
                     navigate("/login")
                 } else if (data.error) {
                     navigate("/dashboard")
@@ -73,7 +66,7 @@ export default function Haras() {
         <div className="flex h-screen">
             <Sidebar selected="haras" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar disableSelect={true} search={search} onSearch={(value) => setSearch(value)}
+                <Topbar logout={logout} disableSelect={true} search={search} onSearch={(value) => setSearch(value)}
                         harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <ListHaras search={search} updateHaras={updateHaras} harasList={harasList}/>

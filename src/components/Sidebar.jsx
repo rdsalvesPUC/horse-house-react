@@ -69,8 +69,8 @@ export default function Sidebar({userType, selected}) {
                                 </div>
                             </Link>)}
 
-                        <Link to="/usuarios" data-view="usuarios"
-                              className={`flex items-center py-3 px-3 rounded-md ${selected === "usuarios" ? "bg-[#2D3A3B] text-secondary" : "text-tertiary"} hover:bg-[#2D3A3B] hover:text-secondary transition-colors duration-200`}>
+                        {(userType === "Proprietário" || userType === "Gerente") &&(<Link to="/usuarios" data-view="usuarios"
+                               className={`flex items-center py-3 px-3 rounded-md ${selected === "usuarios" ? "bg-[#2D3A3B] text-secondary" : "text-tertiary"} hover:bg-[#2D3A3B] hover:text-secondary transition-colors duration-200`}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
                                  strokeLinejoin="round" className={`lucide lucide-users h-5 w-5 ${isOpen && "mr-3"}`}>
@@ -90,8 +90,7 @@ export default function Sidebar({userType, selected}) {
                             <div id="tooltip-usuarios"
                                  className="absolute left-15 w-max bg-white border border-gray-200 rounded-md shadow-lg px-3 py-1 text-sm font-semibold text-gray-700 transition-all duration-200 hidden">Usuários
                             </div>
-                        </Link>
-
+                        </Link>)}
                         <Link to="/cavalos" data-view="cavalos"
                               className={`flex items-center py-3 px-3 rounded-md ${selected === "cavalos" ? "bg-[#2D3A3B] text-secondary" : "text-tertiary"} hover:bg-[#2D3A3B] hover:text-secondary transition-colors duration-200`}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 448 512"

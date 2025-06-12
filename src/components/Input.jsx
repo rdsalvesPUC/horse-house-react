@@ -33,7 +33,7 @@ export default function Input({
     };
     return (
         <div>
-            {variant !== "list" && (<><label htmlFor="nome" className={variants[variant].label}>{nome}</label><span className="text-error"> *</span></>)}
+            {variant !== "list" && (<><label htmlFor={nome} className={variants[variant].label}>{nome}</label><span className="text-error"> *</span></>)}
             <input
                 id={nome}
                 disabled={disabled}

@@ -14,6 +14,7 @@ import {
     validarNome
 } from '../utils';
 import Botao from "../components/Botao.jsx";
+import {useUser} from "../contexts/UserData.jsx";
 
 export default function CadastroProprietario() {
     const [aviso, setAviso] = useState(
@@ -41,6 +42,7 @@ export default function CadastroProprietario() {
     });
     const [cepValido, setCepValido] = useState(false)
     const navigate = useNavigate();
+    const [user,updateUser,logout] = useUser();
 
 
     const [currentStep, setCurrentStep] = useState(1);
@@ -181,7 +183,7 @@ export default function CadastroProprietario() {
                     navigate("/dashboard");
                 })
                 .catch((error) => {
-                    localStorage.removeItem("token");
+                    logout();
                 });
         }
     }, []);

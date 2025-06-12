@@ -9,12 +9,12 @@ import {HarasProvider} from "./contexts/ChooseHaras.jsx";
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <UserProvider>
-            <HarasProvider>
+        <HarasProvider>
+            <UserProvider>
                 <SidebarProvider>
                     <App/>
                 </SidebarProvider>
-            </HarasProvider>
-        </UserProvider>
+            </UserProvider>
+        </HarasProvider>
     </StrictMode>,
 )

@@ -1,7 +1,5 @@
-import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Input from "./Input.jsx";
-import Aviso from "./Aviso.jsx";
 import EditModal from "./EditModal.jsx";
 import Tabela from "./Tabela.jsx";
 import {
@@ -16,7 +14,7 @@ import Select from "./Select.jsx";
 import Lista from "./Lista.jsx";
 import Botao from "./Botao.jsx";
 
-export default function ListUsuarios({haras, search}) {
+export default function ListUsuarios({haras, search, cargo}) {
     const [aviso, setAviso] = useState(
         {
             ativo: false,
@@ -41,7 +39,7 @@ export default function ListUsuarios({haras, search}) {
             user.nome.toLowerCase().includes(search.toLowerCase()) ||
             user.sobrenome.toLowerCase().includes(search.toLowerCase()) ||
             user.email.toLowerCase().includes(search.toLowerCase()) ||
-            (searchCPF && user.Cpf.includes(searchCPF))
+            (searchCPF && user.cpf.includes(searchCPF))
         );
     });
     const handleDelete = (id) => {
@@ -85,7 +83,7 @@ export default function ListUsuarios({haras, search}) {
         });
     }
     useEffect(() => {
-        if (haras && tipo) {
+        if ((haras || cargo === "Gerente") && tipo) {
             updateUsers();
         } else {
             setUserList([])
@@ -94,17 +92,27 @@ export default function ListUsuarios({haras, search}) {
 
     function updateUsers() {
         let url;
-        if (tipo === "gerente") {
-            url = `http://localhost:3000/api/gerentes/haras/${haras}`;
-        } else if (tipo === "veterinario") {
-            url = `http://localhost:3000/api/veterinarios/haras/${haras}`;
-        } else if (tipo === "treinador") {
-            url = `http://localhost:3000/api/treinadores/haras/${haras}`;
-        } else if (tipo === "tratador") {
-            url = `http://localhost:3000/api/tratadores/haras/${haras}`;
-        } else {
-            setUserList([]);
-            return;
+        switch (tipo) {
+            case "gerente":
+                if (cargo === "Gerente") {
+                    setUserList([]);
+                    return;
+                    break;
+                }
+                url = `http://localhost:3000/api/gerentes/haras/${haras}`;
+                break;
+            case "veterinario":
+                url = `http://localhost:3000/api/veterinarios/haras/${haras}`;
+                break;
+            case "treinador":
+                url = `http://localhost:3000/api/treinadores/haras/${haras}`;
+                break;
+            case "tratador":
+                url = `http://localhost:3000/api/tratadores/haras/${haras}`;
+                break;
+            default:
+                setUserList([]);
+                return;
         }
 
         fetch(url, {
@@ -268,10 +276,10 @@ export default function ListUsuarios({haras, search}) {
                            setTipo(valor)
                        }}
                        options={[
-                           {value: "gerente", label: "Gerente"},
+                           ...(cargo === "Proprietário" ? [{value: "gerente", label: "Gerente"}] : []),
                            {value: "veterinario", label: "Veterinário"},
-                           {value: "treinador", label: "Treinador"},
-                           {value: "tratador", label: "Tratador"}
+                           {value: "tratador", label: "Tratador"},
+                           {value: "treinador", label: "Treinador"}
                        ]}
                        placeHolder="Tipo de Usuário"
                        valor={tipo}

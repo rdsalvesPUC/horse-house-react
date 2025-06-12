@@ -1,7 +1,7 @@
 import Input from "./Input.jsx";
 import {useState, useEffect} from "react";
 import Aviso from "./Aviso.jsx";
-import { formatarTelefone, formatarCEP, formatarCPF, validarEmail } from '../utils';
+import {formatarTelefone, formatarCEP, formatarCPF, validarEmail} from '../utils';
 import useCep from "../hooks/useCep.jsx";
 
 export default function EditProfile({userData, reloadUser}) {
@@ -27,7 +27,8 @@ export default function EditProfile({userData, reloadUser}) {
         bairro: "",
         logradouro: "",
         numero: "",
-        complemento: ""
+        complemento: "",
+        crmv: ""
     })
     useEffect(() => {
         if (userData) {
@@ -71,8 +72,16 @@ export default function EditProfile({userData, reloadUser}) {
             if (userData.cargo === "Proprietário") {
                 url = `http://localhost:3000/api/proprietario/editar`;
             } else if (userData.cargo === "Gerente") {
-                url = `http://localhost:3000/api/editarGerente`;
+                url = `http://localhost:3000/api/gerente`;
+            } else if (userData.cargo === "Tratador") {
+                url = `http://localhost:3000/api/tratador`;
+            } else if (userData.cargo === "Veterinário") {
+                url = `http://localhost:3000/api/veterinario`;
+            } else {
+                console.error("Cargo não reconhecido:", userData.cargo);
+                return;
             }
+
 
             const TOKEN = localStorage.getItem('token');
 
@@ -155,8 +164,19 @@ export default function EditProfile({userData, reloadUser}) {
             return;
         }
         if (userData.cargo === "Gerente") {
-            url = `http://localhost:3000/api/editarGerente`;
+            url = `http://localhost:3000/api/gerente`;
         }
+        if (userData.cargo === "Tratador") {
+            url = `http://localhost:3000/api/tratador`;
+        }
+        if (userData.cargo === "Veterinário") {
+            url = `http://localhost:3000/api/veterinario`;
+            data = {
+                ...data,
+                crmv: formData.crmv
+            }
+        }
+
         const TOKEN = localStorage.getItem('token');
         fetch(url, {
             method: "PUT",
@@ -178,8 +198,6 @@ export default function EditProfile({userData, reloadUser}) {
         }).catch(() => {
             setAviso({ativo: true, titulo: "Erro!", mensagem: "Erro ao atualizar os dados!"});
         })
-
-        console.log("Dados do formulário:", data);
     }
 
     return (
@@ -303,6 +321,17 @@ export default function EditProfile({userData, reloadUser}) {
                                tipo="text"
                                variant="profile"
                         />
+                        {userData.cargo === "Veterinário" && (
+                            <Input nome="CRMV"
+                                   onchange={(value) => setFormData(
+                                       (prev) => ({...prev, crmv: value.replace(/\D/g, "").slice(0, 10) || ""})
+                                   )}
+                                   erro={formData.crmv && formData.crmv.length < 5}
+                                   textoErro="O CRMV é obrigatório para veterinários."
+                                   valor={formData.crmv}
+                                   tipo="text"
+                                   variant="profile"
+                            />)}
 
                         {userData.cargo === "Proprietário" && (
                             <>
@@ -386,6 +415,7 @@ export default function EditProfile({userData, reloadUser}) {
                                            onchange={(value) => setFormData(
                                                (prev) => ({...prev, complemento: value})
                                            )}
+                                           valor={formData.complemento}
                                            valor={formData.complemento}
                                            tipo="text"
                                            variant="profile"

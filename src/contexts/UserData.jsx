@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-
 const UserContext = createContext();
-
+import {chooseHaras} from "./ChooseHaras.jsx";
 export function UserProvider({ children }) {
     const foto = localStorage.getItem('foto');
     const nome = localStorage.getItem('nome');
@@ -26,6 +25,7 @@ export function UserProvider({ children }) {
         default:
             cargo = '';
     }
+    const [haras, escolherHaras] = chooseHaras();
 
     const [userData, setUserData] = useState({
         foto: foto,
@@ -33,6 +33,21 @@ export function UserProvider({ children }) {
         sobrenome: sobrenome || '',
         cargo: cargo
     });
+    const logout = useCallback(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('foto');
+        localStorage.removeItem('nome');
+        localStorage.removeItem('sobrenome');
+        localStorage.removeItem('userType');
+        setUserData({
+            foto: null,
+            nome: '',
+            sobrenome: '',
+            cargo: ''
+        });
+        escolherHaras("")
+
+    }, []);
     const fetchUserData = useCallback(async (token) => {
         try {
             const response = await fetch('http://localhost:3000/api/getUsuarioLogado', {
@@ -90,6 +105,7 @@ export function UserProvider({ children }) {
                 logradouro: data.Rua,
                 numero: data.Numero,
                 complemento: data.Complemento,
+                crmv: data.CRMV,
                 cargo: cargo
             };
             console.log(newUserData);
@@ -120,7 +136,7 @@ export function UserProvider({ children }) {
     }, [fetchUserData]);
 
     return (
-        <UserContext.Provider value={[userData, updateUserContext]}>
+        <UserContext.Provider value={[userData, updateUserContext, logout]}>
             {children}
         </UserContext.Provider>
     );

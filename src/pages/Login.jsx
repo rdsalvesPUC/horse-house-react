@@ -14,7 +14,7 @@ export default function Login() {
             mensagem: "",
             titulo: ""
         });
-    const [user, updateUser] = useUser();
+    const [user, updateUser, logout] = useUser();
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
@@ -38,7 +38,7 @@ export default function Login() {
                     navigate("/dashboard");
                 })
                 .catch((error) => {
-                    localStorage.removeItem("token");
+                    logout();
                 });
         }
     }, []);

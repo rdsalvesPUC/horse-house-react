@@ -8,7 +8,7 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = useState()
-    const [userData, updateUser] = useUser()
+    const [userData, updateUser, logout] = useUser()
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');
         fetch(`http://localhost:3000/api/loginExpirado`, {
@@ -61,7 +61,7 @@ export default function Dashboard() {
         <div className="flex h-screen">
             <Sidebar userType = {userData.cargo} />
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar haras={haras} harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
+                <Topbar logout={logout} haras={haras} harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
 
                 </main>

@@ -8,7 +8,7 @@ import {formatarData} from '../utils';
 import Select from "./Select.jsx";
 import Lista from "./Lista.jsx";
 
-export default function ListCavalos({haras, search}) {
+export default function ListCavalos({haras, search, cargo}) {
     const [aviso, setAviso] = useState(
         {
             ativo: false,
@@ -27,10 +27,8 @@ export default function ListCavalos({haras, search}) {
     });
     const filteredHorseList = horseList.filter(horse => {
         if (!search) return true; // Se não houver termo de busca, retorna todos os itens
-        const searchCPF = search.replace(/\D/g, ""); // Remove caracteres não numéricos
         return (
-            horse.Nome.toLowerCase().includes(search.toLowerCase()) ||
-            (searchCPF && horse.Cpf.includes(searchCPF))
+            horse.Nome.toLowerCase().includes(search.toLowerCase())
         );
     });
     const handleDelete = (id) => {
@@ -81,9 +79,15 @@ export default function ListCavalos({haras, search}) {
             setHorseList([])
         }
     }, [haras]);
+    useEffect(() => {
+        if (cargo !== "Proprietário") {
+            updateHorses();
+        }
+    }, []);
+
 
     function updateHorses() {
-        let url = `http://localhost:3000/api/cavalos/haras/${haras}`;
+        let url = `http://localhost:3000/api/cavalos/haras/${haras || 0}`;
         fetch(url, {
             method: "GET",
             headers: {
@@ -99,7 +103,6 @@ export default function ListCavalos({haras, search}) {
             })
             .then((data) => {
                 setHorseList(data);
-                console.log(data)
             })
             .catch((error) => {
                 console.error("Erro ao buscar Cavalos:", error);
@@ -180,7 +183,9 @@ export default function ListCavalos({haras, search}) {
         setIsEditing("");
     };
     const handleEdit = (id) => {
+        console.log(id)
         const horse = horseList.find(h => h.ID === id);
+        console.log(horse)
         if (horse) {
             let dataNascimento = "";
             if (horse.Data_Nascimento) {
@@ -200,12 +205,14 @@ export default function ListCavalos({haras, search}) {
                 status: horse.Status || "",
                 data_nascimento: dataNascimento
             });
+            console.log(id)
             setIsEditing(id);
         }
     };
 
     return (
-        <Lista isEditing={isEditing} aviso={aviso} onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
+        <Lista hideBotao={!(cargo === "Proprietário" || cargo === "Gerente")} isEditing={isEditing} aviso={aviso}
+               onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
                botaoNovo="Adicionar Novo Cavalo" tabela={
             <Tabela campos={[
                 "Nome",
@@ -231,13 +238,17 @@ export default function ListCavalos({haras, search}) {
                         <td className="p-3">{formatarData(horse.Data_Nascimento)}</td>
 
                         <td className="p-3 text-center space-x-2">
-                            <button
-                                onClick={() => handleEdit(horse.ID)}
-                                className="edit text-blue-600 hover:underline">Editar
-                            </button>
-                            <button onClick={() => handleDelete(horse.ID)}
-                                    className="del  text-red-600  hover:underline">Excluir
-                            </button>
+                            {(cargo === "Proprietário" || cargo === "Gerente") && (
+                                <>
+                                    <button
+                                        onClick={() => handleEdit(horse.ID)}
+                                        className="edit text-blue-600 hover:underline">Editar
+                                    </button>
+                                    <button onClick={() => handleDelete(horse.ID)}
+                                            className="del  text-red-600  hover:underline">Excluir
+                                    </button>
+                                </>
+                            )}
                         </td>
                     </tr>))}
             </Tabela>

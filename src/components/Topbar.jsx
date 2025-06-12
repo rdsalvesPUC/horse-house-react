@@ -2,10 +2,9 @@ import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import Select from "./Select.jsx";
 
-export default function Topbar({harasList, choseHaras, userData, updateUser, disableSelect, disableSearch, search, onSearch, haras}) {
+export default function Topbar({harasList, choseHaras, userData, updateUser, disableSelect, disableSearch, search, onSearch, haras, logout}) {
     const [dropdown, setDropdown] = useState(false)
     const navigate = useNavigate();
-
     return (
         <header>
             <div className={`h-16 border-b border-gray-200 bg-white flex items-center ${disableSelect && disableSearch ? "justify-end" : "justify-between"} px-6`}>
@@ -28,7 +27,7 @@ export default function Topbar({harasList, choseHaras, userData, updateUser, dis
                     </span>
                         </div>
                     </div>}
-                {(disableSelect && !disableSearch) &&(
+                {((disableSelect || userData.cargo !== "Proprietário") && !disableSearch) &&(
                     <div className="w-[200px] py-2 pl-3 pr-8"></div>)}
 
 
@@ -87,11 +86,7 @@ export default function Topbar({harasList, choseHaras, userData, updateUser, dis
 
                                 {/* Item: Sair */}
                                 <a onClick={() => {
-                                    localStorage.removeItem("token")
-                                    localStorage.removeItem("userType")
-                                    localStorage.removeItem("nome")
-                                    localStorage.removeItem("sobrenome")
-                                    localStorage.removeItem("foto")
+                                    logout()
                                     updateUser()
                                     navigate("/")
                                 }} id="logout" className="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-b-md">

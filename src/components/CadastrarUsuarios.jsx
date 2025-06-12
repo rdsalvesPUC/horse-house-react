@@ -209,10 +209,10 @@ export default function CadastrarUsuarios({haras, userType}) {
                         }}
                         placeHolder="Selecione"
                         options={[
-                            {value: "gerente", label: "Gerente"},
-                            {value: "treinador", label: "Treinador"},
+                            ...(userType === "Proprietário" ? [{value: "gerente", label: "Gerente"}] : []),
+                            {value: "veterinario", label: "Veterinário"},
                             {value: "tratador", label: "Tratador"},
-                            {value: "veterinario", label: "Veterinário"}
+                            {value: "treinador", label: "Treinador"}
                         ]}
                         required={true}
                         variant="register"

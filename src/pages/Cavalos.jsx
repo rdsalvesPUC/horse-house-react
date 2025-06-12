@@ -7,18 +7,11 @@ import {useUser} from "../contexts/UserData.jsx";
 import {chooseHaras} from "../contexts/ChooseHaras.jsx";
 
 export default function Cavalos() {
-    let userType = localStorage.getItem('userType');
-    if (userType === "proprietario") {
-        userType = "Proprietário";
-    }
-    const nome = localStorage.getItem('nome');
-    const sobrenome = localStorage.getItem('sobrenome');
-    const foto = localStorage.getItem('foto');
     const navigate = useNavigate();
     const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = chooseHaras();
-    const [userData, updateUser] = useUser();
+    const [userData, updateUser, logout] = useUser();
 
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');
@@ -72,7 +65,7 @@ export default function Cavalos() {
         <div className="flex h-screen">
             <Sidebar selected="cavalos" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar haras={haras} search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
+                <Topbar logout={logout} haras={haras} search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
                         choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <ListCavalos search={search} updateHaras={updateHaras} haras={haras} cargo ={userData.cargo}/>
