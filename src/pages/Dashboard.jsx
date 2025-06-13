@@ -10,28 +10,9 @@ export default function Dashboard() {
     const [haras, setHaras] = useState()
     const [userData, updateUser, logout] = useUser()
     useEffect(() => {
-        const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/loginExpirado`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-            }
-        }).then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Erro ao verificar token");
-            }
-        }).then((data) => {
-                if (userData.cargo === "Proprietário") {
-                    updateHaras();
-                }
-            }
-        ).catch((error) => {
-            navigate("/login")
-            console.error("Erro:", error);
-        })
+        if (userData.cargo === "Proprietário") {
+            updateHaras();
+        }
     }, []);
 
     async function updateHaras() {
@@ -59,9 +40,10 @@ export default function Dashboard() {
 
     return (
         <div className="flex h-screen">
-            <Sidebar userType = {userData.cargo} />
+            <Sidebar userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar logout={logout} haras={haras} harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
+                <Topbar logout={logout} haras={haras} harasList={harasList} userData={userData}
+                        choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
 
                 </main>

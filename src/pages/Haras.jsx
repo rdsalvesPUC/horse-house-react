@@ -14,30 +14,10 @@ export default function Haras() {
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = chooseHaras();
     const [userData, updateUser, logout] = useUser();
+
     useEffect(() => {
-        const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/requerProprietario`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-            }
-        }).then((response) => {
-            return response.json();
-        }).then((data) => {
-                if (data.login) {
-                    logout();
-                    navigate("/login")
-                } else if (data.error) {
-                    navigate("/dashboard")
-                    throw new Error("Erro ao verificar token");
-                }
-                updateHaras();
-            }
-        ).catch((error) => {
-            console.error("Erro:", error);
-        })
-    }, []);
+        updateHaras();
+    }, [])
 
     async function updateHaras() {
         const TOKEN = localStorage.getItem('token');
@@ -67,7 +47,8 @@ export default function Haras() {
             <Sidebar selected="haras" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
                 <Topbar logout={logout} disableSelect={true} search={search} onSearch={(value) => setSearch(value)}
-                        harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
+                        harasList={harasList} userData={userData} choseHaras={(harasID) => setHaras(harasID)}
+                        updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
                     <ListHaras search={search} updateHaras={updateHaras} harasList={harasList}/>
                 </main>

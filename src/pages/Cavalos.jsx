@@ -14,29 +14,9 @@ export default function Cavalos() {
     const [userData, updateUser, logout] = useUser();
 
     useEffect(() => {
-        const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/loginExpirado`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-            }
-        }).then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Erro ao verificar token");
-            }
-        }).then((data) => {
-                if (userData.cargo === "Proprietário") {
-                    updateHaras();
-                }
-            }
-        ).catch((error) => {
-            logout();
-            navigate("/login")
-            console.error("Erro:", error);
-        })
+        if (userData.cargo === "Proprietário") {
+            updateHaras();
+        }
     }, []);
 
     async function updateHaras() {

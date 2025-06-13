@@ -12,6 +12,7 @@ import CadastroUsuario from "./pages/CadastroUsuario.jsx";
 import CadastroHaras from "./pages/CadastroHaras.jsx";
 import CadastroCavalos from "./pages/CadastroCavalos.jsx";
 import Simulador from "./pages/Simulador.jsx";
+import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 
 export default function App() {
     return (
@@ -20,15 +21,21 @@ export default function App() {
                 <Route path="/" element={<Home/>}/>
                 <Route path="/registro" element={<CadastroProprietario/>}/>
                 <Route path="/login" element={<Login/>}/>
-                <Route path="/dashboard/*" element={<Dashboard/>}/>
-                <Route path="/user-profile" element={<UserProfile/>}/>
-                <Route path="/haras" element={<Haras/>}/>
-                <Route path="/usuarios" element={<Usuarios/>}/>
-                <Route path="/cavalos" element={<Cavalos/>}/>
-                <Route path="/cadastrar-usuario" element={<CadastroUsuario/>}/>
-                <Route path="/cadastrar-haras" element={<CadastroHaras/>}/>
-                <Route path="/cadastrar-cavalo" element={<CadastroCavalos/>}/>
-                <Route path="/simulador" element={<Simulador/>}/>
+                <Route element={<ProtectedRoutes/>}>
+                    <Route path="/dashboard/*" element={<Dashboard/>}/>
+                    <Route path="/user-profile" element={<UserProfile/>}/>
+                    <Route path="/cavalos" element={<Cavalos/>}/>
+                    <Route path="/simulador" element={<Simulador/>}/>
+                </Route>
+                <Route element={<ProtectedRoutes cargos={["Proprietário"]} />}>
+                    <Route path="/haras" element={<Haras/>}/>
+                    <Route path="/cadastrar-haras" element={<CadastroHaras/>}/>
+                </Route>
+                <Route element={<ProtectedRoutes cargos={["Proprietário", "Gerente"]} />}>
+                    <Route path="/usuarios" element={<Usuarios/>}/>
+                    <Route path="/cadastrar-usuario" element={<CadastroUsuario/>}/>
+                    <Route path="/cadastrar-cavalo" element={<CadastroCavalos/>}/>
+                </Route>
                 <Route path="*" element={<Home/>}/>
             </Routes>
         </Router>

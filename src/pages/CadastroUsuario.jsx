@@ -13,30 +13,9 @@ export default function CadastroUsuario() {
     const [haras, setHaras] = chooseHaras();
     const [userData, updateUser, logout] = useUser();
     useEffect(() => {
-        const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/requerGerenteProprietario`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-            }
-        }).then((response) => {
-            return response.json();
-        }).then((data) => {
-                if (data.login) {
-                    logout();
-                    navigate("/login")
-                } else if (data.error) {
-                    navigate("/dashboard")
-                    throw new Error("Erro ao verificar token");
-                }
-                if (userData.cargo === "Proprietário") {
-                    updateHaras();
-                }
-            }
-        ).catch((error) => {
-            console.error("Erro:", error);
-        })
+        if (userData.cargo === "Proprietário") {
+            updateHaras();
+        }
     }, []);
 
     async function updateHaras() {

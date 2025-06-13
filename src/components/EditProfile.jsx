@@ -416,7 +416,6 @@ export default function EditProfile({userData, reloadUser}) {
                                                (prev) => ({...prev, complemento: value})
                                            )}
                                            valor={formData.complemento}
-                                           valor={formData.complemento}
                                            tipo="text"
                                            variant="profile"
                                     />

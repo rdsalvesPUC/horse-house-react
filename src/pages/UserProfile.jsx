@@ -7,29 +7,6 @@ import {useUser} from "../contexts/UserData.jsx";
 
 export default function UserProfile() {
     const [userData, updateUser, logout] = useUser()
-    const navigate = useNavigate();
-    useEffect(() => {
-        const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/loginExpirado`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${TOKEN}`,
-            }
-        }).then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Erro ao verificar token");
-            }
-        }).then((data) => {
-            }
-        ).catch((error) => {
-            logout();
-            navigate("/login")
-            console.error("Erro:", error);
-        })
-    }, []);
 
     return (
         <div className="flex h-screen">
