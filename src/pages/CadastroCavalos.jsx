@@ -2,43 +2,41 @@ import Topbar from "../components/Topbar.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import ListCavalos from "../components/ListCavalos.jsx";
 import {useUser} from "../contexts/UserData.jsx";
+import CadastrarCavalos from "../components/CadastrarCavalos.jsx";
 import {chooseHaras} from "../contexts/ChooseHaras.jsx";
 
-export default function Cavalos() {
+export default function CadastroCavalos() {
     const navigate = useNavigate();
-    const [search, setSearch] = useState("")
     const [harasList, setHarasList] = useState([])
     const [haras, setHaras] = chooseHaras();
     const [userData, updateUser, logout] = useUser();
-
     useEffect(() => {
         const TOKEN = localStorage.getItem('token');
-        fetch(`http://localhost:3000/api/loginExpirado`, {
+        fetch(`http://localhost:3000/api/requerGerenteProprietario`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${TOKEN}`,
             }
         }).then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Erro ao verificar token");
-            }
+            return response.json();
         }).then((data) => {
+                if (data.login) {
+                    logout();
+                    navigate("/login")
+                } else if (data.error) {
+                    navigate("/dashboard")
+                    throw new Error("Erro ao verificar token");
+                }
                 if (userData.cargo === "Proprietário") {
                     updateHaras();
                 }
             }
         ).catch((error) => {
-            logout();
-            navigate("/login")
             console.error("Erro:", error);
         })
     }, []);
-
     async function updateHaras() {
         const TOKEN = localStorage.getItem('token');
         fetch(`http://localhost:3000/api/getAllHaras`, {
@@ -57,7 +55,6 @@ export default function Cavalos() {
                 setHarasList(await data)
             }
         ).catch((error) => {
-            navigate("/login")
             console.error("Erro:", error);
         })
     }
@@ -66,10 +63,10 @@ export default function Cavalos() {
         <div className="flex h-screen">
             <Sidebar selected="cavalos" userType={userData.cargo}/>
             <div id="content-wrapper" className="flex-1 flex flex-col min-h-0">
-                <Topbar logout={logout} haras={haras} search={search} onSearch={(value) => setSearch(value)} harasList={harasList} userData={userData}
-                        choseHaras={(harasID) => setHaras(harasID)} updateUser={updateUser}/>
+                <Topbar disableSearch={true} harasList={harasList} userData={userData}
+                        choseHaras={(harasID) => setHaras(harasID)} haras = {haras} updateUser={updateUser}/>
                 <main id="views" className="flex-1 overflow-auto bg-tertiary">
-                    <ListCavalos search={search} updateHaras={updateHaras} haras={haras} cargo ={userData.cargo}/>
+                    <CadastrarCavalos haras={haras} userType={userData.cargo}/>
                 </main>
             </div>
         </div>

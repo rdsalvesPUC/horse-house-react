@@ -91,7 +91,7 @@ export default function CadastrarHaras({}) {
                     throw new Error("Haras já cadastrado");
                 });
             } else {
-                throw new Error("Erro ao cadastrar usuário");
+                throw new Error("Erro ao cadastrar Haras");
             }
         }).then((data) => {
             setAviso({

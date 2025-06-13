@@ -183,9 +183,7 @@ export default function ListCavalos({haras, search, cargo}) {
         setIsEditing("");
     };
     const handleEdit = (id) => {
-        console.log(id)
         const horse = horseList.find(h => h.ID === id);
-        console.log(horse)
         if (horse) {
             let dataNascimento = "";
             if (horse.Data_Nascimento) {
@@ -205,13 +203,12 @@ export default function ListCavalos({haras, search, cargo}) {
                 status: horse.Status || "",
                 data_nascimento: dataNascimento
             });
-            console.log(id)
             setIsEditing(id);
         }
     };
 
     return (
-        <Lista hideBotao={!(cargo === "Proprietário" || cargo === "Gerente")} isEditing={isEditing} aviso={aviso}
+        <Lista link="/cadastrar-cavalo" hideBotao={!(cargo === "Proprietário" || cargo === "Gerente")} isEditing={isEditing} aviso={aviso}
                onclose={() => setAviso({ativo: false, mensagem: "", titulo: ""})}
                botaoNovo="Adicionar Novo Cavalo" tabela={
             <Tabela campos={[
@@ -244,9 +241,11 @@ export default function ListCavalos({haras, search, cargo}) {
                                         onClick={() => handleEdit(horse.ID)}
                                         className="edit text-blue-600 hover:underline">Editar
                                     </button>
-                                    <button onClick={() => handleDelete(horse.ID)}
-                                            className="del  text-red-600  hover:underline">Excluir
-                                    </button>
+                                    {cargo === "Proprietário" && (
+                                        <button onClick={() => handleDelete(horse.ID)}
+                                                className="del  text-red-600  hover:underline">Excluir
+                                        </button>
+                                    )}
                                 </>
                             )}
                         </td>

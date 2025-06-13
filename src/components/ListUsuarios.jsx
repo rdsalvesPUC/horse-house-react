@@ -314,9 +314,9 @@ export default function ListUsuarios({haras, search, cargo}) {
                                    <Botao variant="edit" onClick={() => handleEdit(user.ID)}>
                                        Editar
                                    </Botao>
-                                   <Botao variant="delete" onClick={() => handleDelete(user.ID)}>
+                                   {cargo === "Proprietário" && (<Botao variant="delete" onClick={() => handleDelete(user.ID)}>
                                        Excluir
-                                   </Botao>
+                                   </Botao>)}
                                </td>
                            </tr>
                        })}

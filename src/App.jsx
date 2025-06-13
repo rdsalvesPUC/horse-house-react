@@ -10,6 +10,8 @@ import Cavalos from "./pages/Cavalos.jsx";
 import {SidebarProvider} from "./contexts/ToggleSidebar.jsx";
 import CadastroUsuario from "./pages/CadastroUsuario.jsx";
 import CadastroHaras from "./pages/CadastroHaras.jsx";
+import CadastroCavalos from "./pages/CadastroCavalos.jsx";
+import Simulador from "./pages/Simulador.jsx";
 
 export default function App() {
     return (
@@ -25,6 +27,8 @@ export default function App() {
                 <Route path="/cavalos" element={<Cavalos/>}/>
                 <Route path="/cadastrar-usuario" element={<CadastroUsuario/>}/>
                 <Route path="/cadastrar-haras" element={<CadastroHaras/>}/>
+                <Route path="/cadastrar-cavalo" element={<CadastroCavalos/>}/>
+                <Route path="/simulador" element={<Simulador/>}/>
                 <Route path="*" element={<Home/>}/>
             </Routes>
         </Router>

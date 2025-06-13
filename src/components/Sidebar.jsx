@@ -4,7 +4,7 @@ import {ToggleSidebar} from "../contexts/ToggleSidebar.jsx";
 export default function Sidebar({userType, selected}) {
     const [isOpen, toggleSidebar] = ToggleSidebar()
     return (
-        <aside className={`${isOpen ? "w-[250px]" : "w-[80px]"} transition-all duration-300`} id="sidebar">
+        <aside className={`${isOpen ? "w-[260px]" : "w-[80px]"} h-screen flex flex-col relative`} id="sidebar">
             <div className="bg-primary h-screen flex flex-col relative">
                 {/* Logo/Título */}
                 <div className="h-16 py-4 px-6 flex items-center">
@@ -69,28 +69,30 @@ export default function Sidebar({userType, selected}) {
                                 </div>
                             </Link>)}
 
-                        {(userType === "Proprietário" || userType === "Gerente") &&(<Link to="/usuarios" data-view="usuarios"
-                               className={`flex items-center py-3 px-3 rounded-md ${selected === "usuarios" ? "bg-[#2D3A3B] text-secondary" : "text-tertiary"} hover:bg-[#2D3A3B] hover:text-secondary transition-colors duration-200`}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                                 strokeLinejoin="round" className={`lucide lucide-users h-5 w-5 ${isOpen && "mr-3"}`}>
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                            {isOpen && <span className="font-heebo text-base font-medium">Usuários</span>}
-                            {(selected === "usuarios" && isOpen) &&
+                        {(userType === "Proprietário" || userType === "Gerente") && (
+                            <Link to="/usuarios" data-view="usuarios"
+                                  className={`flex items-center py-3 px-3 rounded-md ${selected === "usuarios" ? "bg-[#2D3A3B] text-secondary" : "text-tertiary"} hover:bg-[#2D3A3B] hover:text-secondary transition-colors duration-200`}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
                                      strokeLinejoin="round"
-                                     className="lucide lucide-chevron-right ml-auto h-4 w-4 text-secondary">
-                                    <path d="m9 18 6-6-6-6"></path>
-                                </svg>}
-                            <div id="tooltip-usuarios"
-                                 className="absolute left-15 w-max bg-white border border-gray-200 rounded-md shadow-lg px-3 py-1 text-sm font-semibold text-gray-700 transition-all duration-200 hidden">Usuários
-                            </div>
-                        </Link>)}
+                                     className={`lucide lucide-users h-5 w-5 ${isOpen && "mr-3"}`}>
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                {isOpen && <span className="font-heebo text-base font-medium">Usuários</span>}
+                                {(selected === "usuarios" && isOpen) &&
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                         strokeLinejoin="round"
+                                         className="lucide lucide-chevron-right ml-auto h-4 w-4 text-secondary">
+                                        <path d="m9 18 6-6-6-6"></path>
+                                    </svg>}
+                                <div id="tooltip-usuarios"
+                                     className="absolute left-15 w-max bg-white border border-gray-200 rounded-md shadow-lg px-3 py-1 text-sm font-semibold text-gray-700 transition-all duration-200 hidden">Usuários
+                                </div>
+                            </Link>)}
                         <Link to="/cavalos" data-view="cavalos"
                               className={`flex items-center py-3 px-3 rounded-md ${selected === "cavalos" ? "bg-[#2D3A3B] text-secondary" : "text-tertiary"} hover:bg-[#2D3A3B] hover:text-secondary transition-colors duration-200`}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 448 512"
@@ -108,6 +110,39 @@ export default function Sidebar({userType, selected}) {
                                 </svg>}
                             <div id="tooltip-cavalos"
                                  className="absolute left-15 w-max bg-white border border-gray-200 rounded-md shadow-lg px-3 py-1 text-sm font-semibold text-gray-700 transition-all duration-200 hidden">Cavalos
+                            </div>
+                        </Link>
+
+                        <Link to="/simulador" data-view="cavalos"
+                              className={`flex items-center py-3 px-3 rounded-md ${selected === "simulador" ? "bg-[#2D3A3B] text-secondary" : "text-tertiary"} hover:bg-[#2D3A3B] hover:text-secondary transition-colors duration-200`}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                 strokeLinejoin="round" className={`lucide lucide-calculator ${isOpen && "mr-3"} h-5 w-5`}
+                                 data-lov-id="src/components/layout/sidebar-nav.tsx:116:14" data-lov-name="item.icon"
+                                 data-component-path="src/components/layout/sidebar-nav.tsx" data-component-line="116"
+                                 data-component-file="sidebar-nav.tsx" data-component-name="item.icon"
+                                 data-component-content="%7B%22className%22%3A%22mr-3%20h-5%20w-5%22%7D">
+                                <rect width="16" height="20" x="4" y="2" rx="2"></rect>
+                                <line x1="8" x2="16" y1="6" y2="6"></line>
+                                <line x1="16" x2="16" y1="14" y2="18"></line>
+                                <path d="M16 10h.01"></path>
+                                <path d="M12 10h.01"></path>
+                                <path d="M8 10h.01"></path>
+                                <path d="M12 14h.01"></path>
+                                <path d="M8 14h.01"></path>
+                                <path d="M12 18h.01"></path>
+                                <path d="M8 18h.01"></path>
+                            </svg>
+                            {isOpen && <span className="font-heebo text-base font-medium">Simulador de Custos</span>}
+                            {(selected === "simulador" && isOpen) &&
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                     strokeLinejoin="round"
+                                     className="lucide lucide-chevron-right ml-auto h-4 w-4 text-secondary">
+                                    <path d="m9 18 6-6-6-6"></path>
+                                </svg>}
+                            <div id="tooltip-cavalos"
+                                 className="absolute left-15 w-max bg-white border border-gray-200 rounded-md shadow-lg px-3 py-1 text-sm font-semibold text-gray-700 transition-all duration-200 hidden">Simulador de Custos
                             </div>
                         </Link>
                     </nav>
