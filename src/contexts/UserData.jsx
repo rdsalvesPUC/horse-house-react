@@ -90,6 +90,10 @@ export function UserProvider({ children }) {
                 default:
                     cargo = data.userType;
             }
+            localStorage.setItem('foto', foto);
+            localStorage.setItem('nome', data.Nome);
+            localStorage.setItem('sobrenome', data.Sobrenome);
+            localStorage.setItem('userType', data.userType);
             const newUserData = {
                 foto: foto,
                 nome: data.Nome,
